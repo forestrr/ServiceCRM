@@ -23,7 +23,7 @@ import { PremiumCheckmark } from '../components/PremiumCheckmark';
 import { CustomerDropdown } from '../components/CustomerDropdown';
 import { ProviderDropdown } from '../components/ProviderDropdown';
 import { supabase } from '../lib/supabase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import styles from './ApplicationsPage.module.css';
 
 interface AppStep {
@@ -201,24 +201,12 @@ export const ApplicationsPage = () => {
         setLocalSteps(prev => [...prev, newStep]);
     };
 
-    const moveStep = (index: number, direction: 'up' | 'down') => {
-        // First, get a clean sorted array
-        const sorted = [...localSteps].sort((a, b) => a.position - b.position);
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
-
-        if (targetIndex < 0 || targetIndex >= sorted.length) return;
-
-        // Perform the swap in the array itself
-        const result = [...sorted];
-        const [movedItem] = result.splice(index, 1);
-        result.splice(targetIndex, 0, movedItem);
-
-        // Re-assign positions based on the final array order to ensure stability
-        const finalized = result.map((step, idx) => ({
+    const handleReorder = (newOrder: AppStep[]) => {
+        // Re-assign positions to ensure stability and sync with DB logic
+        const finalized = newOrder.map((step, idx) => ({
             ...step,
             position: idx
         }));
-
         setLocalSteps(finalized);
     };
 
@@ -600,20 +588,25 @@ export const ApplicationsPage = () => {
 
                             <div className={styles.stepsContainer}>
                                 <div className={styles.timelineTrack} />
-                                <div className={styles.stepsList}>
+                                <Reorder.Group
+                                    axis="y"
+                                    values={localSteps}
+                                    onReorder={handleReorder}
+                                    className={styles.stepsList}
+                                >
                                     <AnimatePresence mode="popLayout">
-                                        {[...localSteps].sort((a, b) => a.position - b.position).map((step, index, sortedArr) => {
+                                        {localSteps.map((step, index) => {
                                             const isCompleted = step.is_completed;
-                                            const isActive = !isCompleted && (index === 0 || sortedArr[index - 1].is_completed);
+                                            const isActive = !isCompleted && (index === 0 || localSteps[index - 1].is_completed);
+                                            // Reorder.Item requires a drag control for custom handles
+                                            const dragControls = useDragControls();
 
                                             return (
-                                                <motion.div
+                                                <Reorder.Item
                                                     key={step.id}
-                                                    layout
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    exit={{ opacity: 0, scale: 0.95 }}
-                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                                    value={step}
+                                                    dragControls={dragControls}
+                                                    dragListener={false}
                                                     className={styles.timelineItem}
                                                 >
                                                     <div className={styles.stepDotContainer}>
@@ -640,24 +633,13 @@ export const ApplicationsPage = () => {
 
                                                             <div className={styles.stepActions}>
                                                                 <div className={styles.reorderGroup}>
-                                                                    <button
-                                                                        type="button"
-                                                                        className={styles.reorderBtn}
-                                                                        onClick={() => moveStep(index, 'up')}
-                                                                        disabled={index === 0}
-                                                                        title="Move Up"
+                                                                    <div
+                                                                        className={styles.dragHandle}
+                                                                        onPointerDown={(e) => dragControls.start(e)}
+                                                                        title="Drag to Reorder"
                                                                     >
-                                                                        <ArrowUp size={14} />
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        className={styles.reorderBtn}
-                                                                        onClick={() => moveStep(index, 'down')}
-                                                                        disabled={index === sortedArr.length - 1}
-                                                                        title="Move Down"
-                                                                    >
-                                                                        <ArrowDown size={14} />
-                                                                    </button>
+                                                                        <GripVertical size={20} />
+                                                                    </div>
                                                                 </div>
 
                                                                 <Button variant="ghost" onClick={() => removeLocalStep(step.id)} className={styles.stepDeleteBtn}>
@@ -706,11 +688,11 @@ export const ApplicationsPage = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </motion.div>
+                                                </Reorder.Item>
                                             );
                                         })}
                                     </AnimatePresence>
-                                </div>
+                                </Reorder.Group>
                             </div>
                         </div>
 
