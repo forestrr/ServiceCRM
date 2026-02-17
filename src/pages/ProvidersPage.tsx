@@ -8,7 +8,7 @@ import {
     CheckCircle2,
     Clock
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Button, Card, Input, Modal } from '../components/UI';
 import { supabase } from '../lib/supabase';
 import styles from './ProvidersPage.module.css';
