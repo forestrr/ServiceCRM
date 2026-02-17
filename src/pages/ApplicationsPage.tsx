@@ -222,6 +222,24 @@ export const ApplicationsPage = () => {
         setLocalSteps(finalized);
     };
 
+    const deleteApplication = async (appId: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        if (!confirm('Are you sure you want to delete this application and all its steps? This cannot be undone.')) return;
+
+        try {
+            // Delete steps first, then the application
+            await supabase.from('application_steps').delete().eq('application_id', appId);
+            const { error } = await supabase.from('applications').delete().eq('id', appId);
+            if (error) throw error;
+
+            if (selectedApp?.id === appId) setSelectedApp(null);
+            setApplications(prev => prev.filter(a => a.id !== appId));
+        } catch (err) {
+            console.error('Error deleting application:', err);
+            alert('Failed to delete application.');
+        }
+    };
+
     const deleteTemplate = async (templateId: string) => {
         if (!confirm('Are you sure you want to delete this service template? This cannot be undone.')) return;
 
@@ -397,6 +415,9 @@ export const ApplicationsPage = () => {
                                     ))}
                                 </div>
                                 <div className={styles.openBtn}>
+                                    <Button variant="ghost" onClick={(e) => deleteApplication(app.id, e)} className={styles.appDeleteBtn}>
+                                        <Trash2 size={16} />
+                                    </Button>
                                     <Button variant="ghost" style={{ padding: '8px', borderRadius: '10px', backgroundColor: '#f8fafc' }} onClick={(e) => { e.stopPropagation(); openWorkflow(app); }}>
                                         <ChevronRight size={18} />
                                     </Button>
@@ -452,7 +473,12 @@ export const ApplicationsPage = () => {
                                             </div>
                                             <div className={styles.kanbanFooter}>
                                                 <div className={styles.kanbanStepCount}>{app.steps.length} Steps</div>
-                                                <div className={styles.kanbanDate}>{new Date(app.created_at).toLocaleDateString()}</div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div className={styles.kanbanDate}>{new Date(app.created_at).toLocaleDateString()}</div>
+                                                    <button className={styles.appDeleteBtnKanban} onClick={(e) => deleteApplication(app.id, e)} title="Delete Application">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </motion.div>
                                     ))}
@@ -495,6 +521,9 @@ export const ApplicationsPage = () => {
                                 ))}
                             </div>
                             <div className={styles.openBtn}>
+                                <Button variant="ghost" onClick={(e) => deleteApplication(app.id, e)} className={styles.appDeleteBtn}>
+                                    <Trash2 size={16} />
+                                </Button>
                                 <Button variant="ghost" style={{ padding: '8px', borderRadius: '10px', backgroundColor: '#f8fafc' }} onClick={(e) => { e.stopPropagation(); openWorkflow(app); }}>
                                     <ChevronRight size={18} />
                                 </Button>

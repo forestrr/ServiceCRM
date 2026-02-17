@@ -1258,3 +1258,42 @@
     align-items: center;
     gap: 4px;
 }
+
+/* Application Delete Button */
+.openBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.appDeleteBtn {
+    padding: 8px !important;
+    border-radius: 10px !important;
+    color: #94a3b8 !important;
+    background-color: transparent !important;
+    transition: all 0.2s !important;
+}
+
+.appDeleteBtn:hover {
+    color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+.appDeleteBtnKanban {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 6px;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.appDeleteBtnKanban:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+}
