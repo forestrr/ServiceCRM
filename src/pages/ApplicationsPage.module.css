@@ -1297,3 +1297,72 @@
     color: #ef4444;
     background-color: #fef2f2;
 }
+
+/* Active Step UI Enhancements */
+.activeStepRow {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 14px;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed #e2e8f0;
+}
+
+.activeStepLabel {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+
+.activeStepValue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.kanbanActiveStep {
+    margin-bottom: 16px;
+    padding: 10px;
+    background: #fdf2f8;
+    /* Soft pink for active focus */
+    border-radius: 12px;
+    border: 1px solid #fce7f3;
+}
+
+.kanbanActiveLabel {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #db2777;
+    margin-bottom: 4px;
+}
+
+.kanbanActiveValue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #831843;
+    line-height: 1.2;
+}
+
+.listActiveStep {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.listActiveLabel {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.listActiveValue {
+    color: var(--primary);
+    font-weight: 700;
+}

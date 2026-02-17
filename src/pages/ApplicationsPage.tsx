@@ -336,6 +336,12 @@ export const ApplicationsPage = () => {
         return styles.stepChipPending;
     };
 
+    const getCurrentStepLabel = (steps: AppStep[]) => {
+        const sorted = [...steps].sort((a, b) => a.position - b.position);
+        const firstIncomplete = sorted.find(s => !s.is_completed);
+        return firstIncomplete ? firstIncomplete.label : 'All Steps Completed';
+    };
+
     return (
         <div className={styles.page}>
             <div className={styles.header}>
@@ -394,6 +400,10 @@ export const ApplicationsPage = () => {
                                 <div className={styles.appCustomer}>
                                     <div className={styles.appCustomerAvatar}><User size={14} /></div>
                                     <span className={styles.appCustomerName}>{app.customer?.name}</span>
+                                </div>
+                                <div className={styles.activeStepRow}>
+                                    <span className={styles.activeStepLabel}>Working Now:</span>
+                                    <span className={styles.activeStepValue}>{getCurrentStepLabel(app.steps)}</span>
                                 </div>
                             </div>
                             <div className={styles.cardProgress}>
@@ -463,6 +473,10 @@ export const ApplicationsPage = () => {
                                                 <div className={styles.appCustomerAvatar}><User size={12} /></div>
                                                 <span className={styles.appCustomerName}>{app.customer?.name}</span>
                                             </div>
+                                            <div className={styles.kanbanActiveStep}>
+                                                <div className={styles.kanbanActiveLabel}>Current Phase:</div>
+                                                <div className={styles.kanbanActiveValue}>{getCurrentStepLabel(app.steps)}</div>
+                                            </div>
                                             <div className={styles.kanbanMiniProgress}>
                                                 <div className={styles.kanbanProgressTrack}>
                                                     <div
@@ -498,6 +512,10 @@ export const ApplicationsPage = () => {
                                     <span className={styles.appDate}>{new Date(app.created_at).toLocaleDateString()}</span>
                                 </div>
                                 <h3 className={styles.appServiceName}>{app.service_template?.name}</h3>
+                                <div className={styles.listActiveStep}>
+                                    <span className={styles.listActiveLabel}>Currently:</span>
+                                    <span className={styles.listActiveValue}>{getCurrentStepLabel(app.steps)}</span>
+                                </div>
                                 <div className={styles.appCustomer}>
                                     <div className={styles.appCustomerAvatar}><User size={12} /></div>
                                     <span className={styles.appCustomerName}>{app.customer?.name}</span>
