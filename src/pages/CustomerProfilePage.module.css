@@ -1,0 +1,330 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Header */
+.headerRow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.name {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.typeBadge {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.typeBadgeCompany {
+    background-color: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.typeBadgeIndividual {
+    background-color: #f5f3ff;
+    color: #6d28d9;
+    border: 1px solid #ddd6fe;
+}
+
+.since {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) 2fr;
+    gap: 32px;
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Profile Card */
+.sectionTitle {
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.profileFields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fieldLabel {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.fieldValue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.fieldText {
+    font-weight: 500;
+}
+
+.whatsappValue {
+    composes: fieldValue;
+    color: #16a34a;
+}
+
+.whatsappText {
+    font-weight: 600;
+}
+
+/* Workflows Card */
+.workflowsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.workflowEmpty {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px;
+}
+
+.workflowItem {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.workflowName {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.progressBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.progressTrack {
+    flex: 1;
+    height: 4px;
+    background-color: #f1f5f9;
+    border-radius: 2px;
+}
+
+.progressFill {
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 2px;
+}
+
+.progressLabel {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Notes Card */
+.notesBox {
+    background-color: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.notesText {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    white-space: pre-wrap;
+}
+
+/* Documents */
+.docsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.docsTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.docsTitle h3 {
+    font-weight: 700;
+}
+
+.docsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.docsEmpty {
+    padding: 40px;
+    text-align: center;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+}
+
+.docCard {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+}
+
+.docInfo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.docIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.docNameRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.docName {
+    font-weight: 700;
+}
+
+.docVersion {
+    font-size: 0.7rem;
+    background-color: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.docExpiry {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.docActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.docBtns {
+    display: flex;
+    gap: 4px;
+}
+
+/* Upload Modal */
+.uploadForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fileInputLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.fileInput {
+    padding: 10px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+}
+
+.uploadActions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+/* Loading / Not Found */
+.loadingState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.loadingText {
+    color: var(--text-muted);
+}
+
+.notFound {
+    text-align: center;
+    padding: 80px;
+}
+
+.notFoundTitle {
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .headerRow {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,1260 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* View Toggle */
+.viewToggle {
+    display: flex;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.viewToggleBtn {
+    padding: 8px 12px;
+    border: none;
+    background-color: white;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.viewToggleBtn:first-child {
+    border-right: 1.5px solid var(--border);
+}
+
+.viewToggleBtnActive {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Toolbar — Search + Toggle */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* List View */
+.listWrapper {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background-color: white;
+    overflow: hidden;
+}
+
+.listRow {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1.5fr 1.2fr 1.5fr 100px;
+    gap: 28px;
+    align-items: center;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.listRow:last-child {
+    border-bottom: none;
+}
+
+.listRow:hover {
+    background-color: #f8fafc;
+}
+
+/* Search Bar */
+.searchBar {
+    position: relative;
+    max-width: 480px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    outline: none;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background-color: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.searchInput:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+
+/* Loading / Empty */
+.loadingState {
+    padding: 80px;
+    text-align: center;
+}
+
+.loadingText {
+    margin-top: 16px;
+    color: var(--text-muted);
+}
+
+.emptyState {
+    padding: 80px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* ========================================
+   Card Grid
+   ======================================== */
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 4px;
+}
+
+.appCard {
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background-color: white;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.25s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.appCard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -12px rgba(124, 58, 237, 0.12),
+        0 8px 16px -8px rgba(0, 0, 0, 0.06);
+    border-color: rgba(124, 58, 237, 0.2);
+}
+
+/* Card Header Band */
+.cardHeader {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #fafafe;
+}
+
+.appId {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--primary);
+    background-color: rgba(124, 58, 237, 0.08);
+    padding: 3px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+}
+
+.appDate {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Card Body */
+.cardBody {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.appServiceName {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.appDescRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.appDesc {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.appDescSeparator {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.appStepCount {
+    font-size: 0.8rem;
+    color: #7c3aed;
+    font-weight: 800;
+}
+
+.appCustomer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.appCustomerAvatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #ede9fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.appCustomerName {
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Card Progress */
+.cardProgress {
+    padding: 0 16px 14px;
+}
+
+.progressHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+}
+
+.progressPercent {
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.progressComplete {
+    color: #10b981;
+}
+
+.progressStepsLabel {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.progressTrack {
+    width: 100%;
+    height: 8px;
+    background-color: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+.progressFillDefault {
+    background-color: var(--primary);
+}
+
+.progressFillDone {
+    background-color: #10b981;
+}
+
+/* Card Footer — Step Chips + Open Button */
+.cardFooter {
+    padding: 12px 16px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.stepChips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+}
+
+.stepChips::-webkit-scrollbar {
+    display: none;
+}
+
+.stepChip {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid;
+    position: relative;
+    flex-shrink: 0;
+    cursor: default;
+}
+
+/* Tooltip */
+.stepChip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1e293b;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.stepChip::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1e293b;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.stepChip:hover::after,
+.stepChip:hover::before {
+    opacity: 1;
+}
+
+.stepChipCompleted {
+    background-color: #dcfce7;
+    color: #10b981;
+    border-color: #bbf7d0;
+}
+
+.stepChipOutsource {
+    background-color: #fef3c7;
+    color: #d97706;
+    border-color: #fde68a;
+}
+
+.stepChipPending {
+    background-color: #f8fafc;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+}
+
+/* Currently Running Step */
+.stepChipRunning {
+    background-color: #eff6ff;
+    color: #3b82f6;
+    border-color: #3b82f6;
+    animation: pulseRunning 2s ease-in-out infinite;
+}
+
+@keyframes pulseRunning {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0);
+    }
+}
+
+.stepChipDot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 7px;
+    height: 7px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 1.5px solid white;
+}
+
+.openBtn {
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Workflow Engine Modal (Timeline Edition)
+   ======================================== */
+.workflowRoot {
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+    overflow: hidden;
+    background-color: white;
+}
+
+/* Workflow Header */
+.workflowHeader {
+    padding: 42px 48px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.workflowHeader::after {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -5%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+}
+
+.workflowHeaderIdRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.workflowHeaderId {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4f46e5;
+    padding: 4px 12px;
+    background-color: white;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.workflowHeaderDate {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.workflowHeaderTitle {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+    line-height: 1;
+}
+
+.workflowHeaderCustomer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.workflowHeaderCustomerName {
+    font-weight: 500;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+}
+
+.workflowHeaderProgress {
+    text-align: right;
+}
+
+.workflowHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    position: relative;
+    z-index: 10;
+}
+
+.modalCloseIcon {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    padding: 0;
+}
+
+.modalCloseIcon:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg) scale(1.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.workflowHeaderPercent {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    background: linear-gradient(to bottom, #ffffff, #c7d2fe);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.workflowHeaderProgressLabel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 10px;
+}
+
+/* Workflow Body */
+.workflowBody {
+    flex: 1;
+    padding: 0;
+    overflow-y: auto;
+    background-color: white;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+
+.workflowBody::-webkit-scrollbar {
+    width: 6px;
+}
+
+.workflowBody::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.workflowBodyHeader {
+    padding: 40px 64px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.workflowBodyTitle {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.workflowBodyTitleIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background-color: #f5f3ff;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.workflowBodyTitleText {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    letter-spacing: -0.01em;
+}
+
+/* Timeline Container */
+.stepsContainer {
+    position: relative;
+    padding: 20px 64px 60px;
+}
+
+
+.timelineTrack {
+    position: absolute;
+    left: 81px;
+    top: 40px;
+    bottom: 80px;
+    width: 2px;
+    background-color: #f1f5f9;
+}
+
+.stepsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.timelineItem {
+    position: relative;
+    padding: 24px 0 24px 60px;
+    transition: all 0.2s ease;
+}
+
+.stepDotContainer {
+    position: absolute;
+    left: 0;
+    top: 26px;
+    z-index: 2;
+}
+
+/* The actual bullet */
+.stepDot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepDotCompleted {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.stepDotActive {
+    border-color: #4f46e5;
+    color: #4f46e5;
+    box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.05);
+}
+
+.stepContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stepMainRow {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stepLabelInput {
+    flex: 1;
+    border: none;
+    font-weight: 500;
+    font-size: 1.35rem;
+    outline: none;
+    background-color: transparent;
+    font-family: inherit;
+    letter-spacing: -0.01em;
+    padding: 0;
+    color: #1e293b;
+    transition: color 0.2s ease;
+}
+
+.stepLabelCompleted {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.stepLabelInput:focus {
+    color: #4f46e5;
+}
+
+.stepSequence {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.stepDeleteBtn:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.stepActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.reorderGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.reorderBtn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 2px 6px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 0;
+}
+
+.reorderBtn:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    color: #4f46e5;
+    border-color: #cbd5e1;
+}
+
+.reorderBtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: transparent;
+}
+
+.stepDeleteBtn {
+    color: #94a3b8;
+    padding: 8px;
+    border-radius: 10px;
+    background-color: transparent;
+    transition: all 0.2s;
+}
+
+.stepDeleteBtn:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+}
+
+/* Step Details Modernized */
+.stepDetails {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 40px;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.outsourceGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.outsourceCheckGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.outsourceCheckbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #4f46e5;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.outsourceLabel {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Due Date */
+.dueDateGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.dueDateLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+}
+
+.dueDateLabelText {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.dueDateInput {
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    color: #1e293b;
+    transition: all 0.2s;
+}
+
+.dueDateInput:focus {
+    border-color: #4f46e5;
+    background-color: white;
+}
+
+.dueDateInputSet {
+    border-color: #4f46e5;
+    background-color: #f5f3ff;
+    color: #4f46e5;
+}
+
+/* Workflow Footer */
+.workflowFooter {
+    padding: 32px 64px;
+    border-top: 1px solid #f1f5f9;
+    background-color: white;
+    display: flex;
+    gap: 24px;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.02);
+}
+
+/* ========================================
+   New Application Modal (Establishment)
+   ======================================== */
+.newAppForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 4px;
+}
+
+.newAppSection {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+}
+
+.newAppLabel {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.blueprintHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.templateList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 2px 4px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+
+.templateList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.templateList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.templateList::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.templateCard {
+    padding: 16px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #f1f5f9;
+}
+
+.templateCardSelected {
+    border-color: #6366f1;
+    background-color: #f5f3ff;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.1), 0 4px 6px -4px rgba(99, 102, 241, 0.1);
+}
+
+.templateCardDefault {
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.templateCardDefault:hover {
+    transform: translateY(-4px);
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.templateName {
+    font-weight: 900;
+    color: #1e293b;
+    font-size: 1.35rem;
+    letter-spacing: -0.03em;
+    margin-bottom: 2px;
+}
+
+.templateDesc {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+.templateSteps {
+    display: inline-flex;
+    padding: 4px 10px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.templateCardSelected .templateSteps {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.templateActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.templateCheckmark {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #6366f1;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+}
+
+.templateDeleteBtn {
+    padding: 10px;
+    color: #ef4444;
+    background-color: #fef2f2;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.templateDeleteBtn:hover {
+    background-color: #fee2e2;
+    transform: scale(1.1);
+}
+
+/* New App Footer */
+.newAppActions {
+    margin-top: 12px;
+    display: flex;
+    gap: 20px;
+}
+
+@media (max-width: 1440px) {
+    .cardsGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1200px) {
+    .cardsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .cardsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .listRow {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .cardsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .listRow {
+        grid-template-columns: 1fr;
+    }
+
+    .stepChips {
+        display: none;
+    }
+
+    .stepDetails {
+        grid-template-columns: 1fr;
+        padding-left: 0;
+    }
+
+    .workflowHeader {
+        padding: 24px;
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .workflowBody {
+        padding: 20px;
+    }
+
+    .workflowFooter {
+        padding: 20px;
+        flex-direction: column;
+    }
+
+    .kanbanBoard {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 20px;
+        grid-template-columns: none;
+    }
+
+    .kanbanColumn {
+        flex: 0 0 300px;
+    }
+}
+
+.savingBtn {
+    opacity: 0.8;
+    cursor: wait;
+}
+
+.savingBtn svg {
+    animation: spinButton 1s linear infinite;
+}
+
+@keyframes spinButton {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Kanban View Styles */
+.kanbanBoard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 10px 0;
+    min-height: calc(100vh - 350px);
+}
+
+.kanbanColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.kanbanColumnHeader {
+    padding: 12px 16px;
+    background: rgba(248, 250, 252, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.kanbanColumnTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+}
+
+.kanbanCount {
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    color: #64748b;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.kanbanList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 20px;
+}
+
+.kanbanCard {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanbanCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.08);
+    border-color: rgba(79, 70, 229, 0.2);
+}
+
+.kanbanCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.kanbanProgress {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+.kanbanProgressDone {
+    color: #10b981;
+}
+
+.kanbanAppTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+}
+
+.kanbanAppCustomer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 6px 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.kanbanMiniProgress {
+    margin-bottom: 16px;
+}
+
+.kanbanProgressTrack {
+    height: 4px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.kanbanProgressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5, #818cf8);
+    border-radius: 10px;
+}
+
+.kanbanProgressFillDone {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.kanbanFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.kanbanStepCount,
+.kanbanDate {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}

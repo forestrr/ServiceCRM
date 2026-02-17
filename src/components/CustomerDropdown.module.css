@@ -1,0 +1,184 @@
+.wrapper {
+    position: relative;
+}
+
+/* Trigger Button */
+.trigger {
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 2px solid #f1f5f9;
+    background-color: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.triggerOpen {
+    border-color: #7c3aed;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+}
+
+.triggerContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.triggerAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+}
+
+.triggerAvatarActive {
+    background-color: #ede9fe;
+    color: #7c3aed;
+}
+
+.triggerText {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #94a3b8;
+}
+
+.triggerTextActive {
+    color: #1e293b;
+}
+
+.chevron {
+    color: #94a3b8;
+    transition: transform 0.2s;
+}
+
+.chevronOpen {
+    transform: rotate(90deg);
+}
+
+/* Dropdown Panel */
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    overflow: hidden;
+}
+
+/* Search */
+.searchBox {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.searchInputWrapper {
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 10px 10px 10px 36px;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    font-weight: 600;
+}
+
+.searchInput:focus {
+    border-color: var(--primary);
+}
+
+/* Options List */
+.optionsList {
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 #f8fafc;
+}
+
+.optionsList::-webkit-scrollbar {
+    width: 7px;
+}
+
+.optionsList::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.optionsList::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Individual Option */
+.option {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.option:hover {
+    background-color: #f8fafc;
+}
+
+.optionSelected {
+    background-color: #f5f3ff;
+}
+
+.optionSelected:hover {
+    background-color: #f5f3ff;
+}
+
+.optionAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.optionName {
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.optionCheck {
+    margin-left: auto;
+}
+
+.emptyState {
+    padding: 20px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}

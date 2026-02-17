@@ -1,0 +1,278 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Two-panel layout */
+.panels {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+/* Left Sidebar */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebarLabel {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.templateList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.templateItem {
+    padding: 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background-color: white;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.templateItem:hover {
+    border-color: #c7d2fe;
+    background-color: #fafafe;
+}
+
+.templateItemActive {
+    border-color: var(--primary);
+    background-color: var(--primary-light);
+}
+
+.templateItemName {
+    font-weight: 600;
+}
+
+.templateItemNameActive {
+    color: var(--primary-dark);
+}
+
+.templateItemSteps {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.templateDeleteBtn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #ef4444;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.templateDeleteBtn:hover {
+    opacity: 1;
+}
+
+.noTemplates {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 16px;
+}
+
+.loadingState {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+/* Right Panel — Editor */
+.editorCard {
+    position: sticky;
+    top: 40px;
+}
+
+.editorEmpty {
+    padding: 60px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.editorTitle {
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+}
+
+.editorSub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.editorForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.editorTopRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Steps Section */
+.stepsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stepsLabel {
+    font-weight: 600;
+}
+
+.stepsCount {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.stepsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 #f8fafc;
+}
+
+.stepsList::-webkit-scrollbar {
+    width: 7px;
+}
+
+.stepsList::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.stepsList::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.stepsList::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+.stepItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: white;
+    transition: box-shadow 0.2s;
+}
+
+.stepItem:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stepNumber {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.stepInput {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    outline: none;
+}
+
+.stepInput:focus {
+    border-color: var(--primary);
+}
+
+.outsourceToggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.outsourceCheckbox {
+    accent-color: var(--primary);
+}
+
+.stepsEmpty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+}
+
+/* Action Bar */
+.editorActions {
+    display: flex;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .panels {
+        grid-template-columns: 1fr;
+    }
+}
