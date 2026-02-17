@@ -82,6 +82,39 @@
     gap: 16px;
 }
 
+.portalBox {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--border);
+}
+
+.portalInputRow {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+}
+
+.portalUrl {
+    flex: 1;
+    background: #f8fafc;
+    border: 1.5px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.portalHint {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 8px;
+    font-style: italic;
+}
+
 .fieldLabel {
     font-size: 0.8rem;
     color: var(--text-muted);

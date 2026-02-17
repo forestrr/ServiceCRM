@@ -62,6 +62,7 @@ export const CustomerProfilePage = () => {
         expiry_date: '',
         file: null as File | null
     });
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (id) fetchCustomerData();
@@ -188,6 +189,13 @@ export const CustomerProfilePage = () => {
         return { label: 'Valid', variant: 'success' };
     };
 
+    const copyPortalLink = () => {
+        const url = `${window.location.origin}/portal/${id}`;
+        navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     if (loading) {
         return (
             <div className={styles.loadingState}>
@@ -251,6 +259,29 @@ export const CustomerProfilePage = () => {
                                 </div>
                             )}
                             <Button variant="outline" style={{ marginTop: '8px' }}>Edit Profile</Button>
+
+                            <div className={styles.portalBox}>
+                                <p className={styles.fieldLabel}>Customer Portal Link</p>
+                                <div className={styles.portalInputRow}>
+                                    <div className={styles.portalUrl}>
+                                        {window.location.origin}/portal/...
+                                    </div>
+                                    <Button
+                                        variant={copied ? 'primary' : 'outline'}
+                                        onClick={copyPortalLink}
+                                        style={{
+                                            padding: '8px 16px',
+                                            fontSize: '0.8rem',
+                                            backgroundColor: copied ? '#10b981' : undefined,
+                                            borderColor: copied ? '#10b981' : undefined,
+                                            color: copied ? 'white' : undefined
+                                        }}
+                                    >
+                                        {copied ? 'Copied!' : 'Copy Link'}
+                                    </Button>
+                                </div>
+                                <p className={styles.portalHint}>Share this link with the customer for real-time tracking.</p>
+                            </div>
                         </div>
                     </Card>
 

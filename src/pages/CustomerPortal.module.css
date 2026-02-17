@@ -1,0 +1,271 @@
+.portalRoot {
+    min-height: 100vh;
+    background-color: #f8fafc;
+    padding: 40px 20px;
+    font-family: var(--font-main, inherit);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.portalHeader {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.brandIcon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+.brandName {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+}
+
+.welcomeText {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.welcomeSubtext {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #1e293b;
+}
+
+/* Application Cards */
+.appsList {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.appCard {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.cardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.serviceName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.appId {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statusLabel {
+    display: inline-flex;
+    padding: 6px 14px;
+    background-color: #f0f9ff;
+    color: #0369a1;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* Progress Section */
+.progressSection {
+    margin-bottom: 32px;
+}
+
+.progressHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.percent {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #4f46e5;
+}
+
+.progressTrack {
+    height: 12px;
+    background-color: #f1f5f9;
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5 0%, #818cf8 100%);
+    border-radius: 100px;
+}
+
+/* Steps Timeline */
+.stepsTimeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 36px;
+}
+
+.stepsTimeline::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background-color: #f1f5f9;
+}
+
+.stepItem {
+    position: relative;
+    padding-bottom: 24px;
+}
+
+.stepItem:last-child {
+    padding-bottom: 0;
+}
+
+.stepMarker {
+    position: absolute;
+    left: -36px;
+    top: 4px;
+    width: 36px;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+}
+
+.stepDot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid #e2e8f0;
+}
+
+.stepDotCompleted {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.stepDotActive {
+    border-color: #4f46e5;
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.stepInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stepLabel {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.stepLabelCompleted {
+    color: #94a3b8;
+    text-decoration: line-through;
+}
+
+.stepStatus {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.statusCompleted {
+    color: #10b981;
+}
+
+.statusActive {
+    color: #4f46e5;
+}
+
+.statusPending {
+    color: #94a3b8;
+}
+
+/* Loading States */
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 16px;
+}
+
+.loadingText {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.notFound {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.notFoundTitle {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 640px) {
+    .portalRoot {
+        padding: 24px 16px;
+    }
+
+    .welcomeText {
+        font-size: 1.5rem;
+    }
+
+    .appCard {
+        padding: 24px;
+    }
+}
