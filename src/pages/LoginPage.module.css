@@ -225,3 +225,22 @@
     font-weight: 500;
     z-index: 1;
 }
+
+@media (max-width: 480px) {
+    .authBox {
+        padding: 32px 24px;
+        border-radius: 20px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .logoRow {
+        margin-bottom: 24px;
+    }
+
+    .logoTitle {
+        font-size: 1.2rem;
+    }
+}

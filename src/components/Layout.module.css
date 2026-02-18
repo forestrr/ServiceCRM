@@ -159,6 +159,10 @@
     min-height: 100vh;
 }
 
+.mobileHeader {
+    display: none;
+}
+
 .mainContent {
     flex: 1;
     padding: 40px;
@@ -167,23 +171,94 @@
     width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .sidebar {
-        width: 200px;
-        padding: 16px;
+        width: 240px;
     }
 
     .mainContent {
-        padding: 20px;
+        padding: 32px;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+    .layoutRoot {
+        flex-direction: column;
+    }
+
+    .mobileHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        background-color: var(--bg-sidebar);
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobileLogo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .menuToggle {
+        background: transparent;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .sidebar {
-        display: none;
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1100;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100vh;
+        box-shadow: 20px 0 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebarOpen {
+        transform: translateX(280px);
+    }
+
+    .backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        z-index: 1050;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
     }
 
     .mainContent {
-        padding: 16px;
+        padding: 24px 16px;
+    }
+
+    .logo {
+        display: none;
     }
 }

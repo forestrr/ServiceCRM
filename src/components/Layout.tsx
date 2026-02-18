@@ -14,10 +14,12 @@ import {
 import styles from './Layout.module.css';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
+import { Menu, X } from 'lucide-react';
 
 const Sidebar = () => {
     const location = useLocation();
     const { user, profile, signOut } = useAuth();
+    const [isMobileNavOpen, setIsMobileNavOpen] = React.useState(false);
 
     const menuItems = [
         { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/' },
@@ -35,61 +37,89 @@ const Sidebar = () => {
     };
 
     return (
-        <div className={styles.sidebar}>
-            <div className={styles.logo}>
-                <div className={styles.logoIcon}>
-                    <CheckCircle2 size={20} color="white" />
-                </div>
-                <h2 className={styles.logoText}>Trust Flow</h2>
-            </div>
-
-            <nav className={styles.nav}>
-                {menuItems.map((item, index) => {
-                    const isActive = location.pathname === item.path;
-                    return (
-                        <Link
-                            key={index}
-                            to={item.path}
-                            className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
-                        >
-                            {item.icon}
-                            <span className={styles.navLabel}>{item.label}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            <div className={styles.footer}>
-                <div className={styles.themeToggleWrapper}>
-                    <ThemeToggle />
-                </div>
-
-                <div className={styles.userInfo}>
-                    <div className={styles.userAvatar}>
-                        {getInitials()}
+        <>
+            {/* Mobile Header */}
+            <header className={styles.mobileHeader}>
+                <div className={styles.mobileLogo}>
+                    <div className={styles.logoIcon}>
+                        <CheckCircle2 size={18} color="white" />
                     </div>
-                    <div className={styles.userDetails}>
-                        <span className={styles.userName}>{profile?.full_name || 'Account'}</span>
-                        <span className={styles.userEmail}>{user?.email}</span>
+                    <span className={styles.logoText}>Trust Flow</span>
+                </div>
+                <button
+                    className={styles.menuToggle}
+                    onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+                    aria-label="Toggle Menu"
+                >
+                    {isMobileNavOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+            </header>
+
+            {/* Mobile Backdrop */}
+            {isMobileNavOpen && (
+                <div
+                    className={styles.backdrop}
+                    onClick={() => setIsMobileNavOpen(false)}
+                />
+            )}
+
+            <div className={`${styles.sidebar} ${isMobileNavOpen ? styles.sidebarOpen : ''}`}>
+                <div className={styles.logo}>
+                    <div className={styles.logoIcon}>
+                        <CheckCircle2 size={20} color="white" />
+                    </div>
+                    <h2 className={styles.logoText}>Trust Flow</h2>
+                </div>
+
+                <nav className={styles.nav}>
+                    {menuItems.map((item, index) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Link
+                                key={index}
+                                to={item.path}
+                                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+                                onClick={() => setIsMobileNavOpen(false)}
+                            >
+                                {item.icon}
+                                <span className={styles.navLabel}>{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                <div className={styles.footer}>
+                    <div className={styles.themeToggleWrapper}>
+                        <ThemeToggle />
+                    </div>
+
+                    <div className={styles.userInfo}>
+                        <div className={styles.userAvatar}>
+                            {getInitials()}
+                        </div>
+                        <div className={styles.userDetails}>
+                            <span className={styles.userName}>{profile?.full_name || 'Account'}</span>
+                            <span className={styles.userEmail}>{user?.email}</span>
+                        </div>
+                    </div>
+
+                    <Link to="/profile" className={styles.profileBtn} title="My Profile" onClick={() => setIsMobileNavOpen(false)}>
+                        <User size={20} />
+                        <span className={styles.navLabel}>My Profile</span>
+                    </Link>
+
+                    <div className={styles.notificationBtn}>
+                        <Bell size={20} />
+                        <span className={styles.navLabel}>Notifications</span>
+                    </div>
+
+                    <div className={styles.logoutBtn} onClick={() => signOut()} title="Sign Out">
+                        <LogOut size={20} />
+                        <span className={styles.navLabel}>Logout</span>
                     </div>
                 </div>
-
-                <Link to="/profile" className={styles.profileBtn} title="My Profile">
-                    <User size={20} />
-                    <span className={styles.navLabel}>My Profile</span>
-                </Link>
-
-                <div className={styles.notificationBtn}>
-                    <Bell size={20} />
-                    <span className={styles.navLabel}>Notifications</span>
-                </div>
-
-                <div className={styles.logoutBtn} onClick={() => signOut()} title="Sign Out">
-                    <LogOut size={20} />
-                    <span className={styles.navLabel}>Logout</span>
-                </div>
             </div>
-        </div>
+        </>
     );
 };
 

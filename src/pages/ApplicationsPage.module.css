@@ -1520,25 +1520,327 @@
     color: var(--primary);
     font-weight: 700;
 }
+
 /* Step Description Extensions */
-.stepDescTextarea { width: 100%; background: var(--bg-main); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: var(--text-muted); font-family: inherit; resize: none; outline: none; margin: 8px 0; transition: border-color 0.2s; }
-.stepDescTextarea:focus { border-color: var(--primary); }
-.activeStepContent { flex: 1; }
-.cardStepDesc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.stepDescTextarea {
+    width: 100%;
+    background: var(--bg-main);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    margin: 8px 0;
+    transition: border-color 0.2s;
+}
+
+.stepDescTextarea:focus {
+    border-color: var(--primary);
+}
+
+.activeStepContent {
+    flex: 1;
+}
+
+.cardStepDesc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 /* Application Description Editor */
-.workflowDescEditor { flex: 1; max-width: 400px; margin-right: 24px; padding: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
-.workflowDescLabel { display: block; font-size: 0.75rem; font-weight: 700; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-.workflowDescTextarea { width: 100%; background: transparent; border: none; outline: none; font-size: 0.9rem; color: white; resize: none; font-family: inherit; line-height: 1.4; }
-.workflowDescTextarea::placeholder { color: rgba(255, 255, 255, 0.3); }
+.workflowDescEditor {
+    flex: 1;
+    max-width: 400px;
+    margin-right: 24px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-.cardAppDescription { font-size: 0.9rem; color: var(--text-muted); margin: 8px 0 16px 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.workflowDescLabel {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.workflowDescTextarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: white;
+    resize: none;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.workflowDescTextarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.cardAppDescription {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 8px 0 16px 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 /* Kanban & List Description Enhancements */
-.kanbanTemplateDesc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; line-height: 1.4; }
-.kanbanAppDesc { font-size: 0.85rem; color: var(--text-main); font-weight: 500; margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.listTemplateDesc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2px; }
-.listAppDesc { font-size: 0.85rem; color: var(--text-main); font-weight: 500; margin-bottom: 8px; }
+.kanbanTemplateDesc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
 
-.listTemplateDesc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2px; }
-.listAppDesc { font-size: 0.85rem; color: var(--text-main); font-weight: 500; margin-bottom: 8px; }
+.kanbanAppDesc {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    font-weight: 500;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.listTemplateDesc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.listAppDesc {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.listTemplateDesc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+@media (max-width: 1200px) {
+    .cardsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .cardsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .listRow {
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .headerRight {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .searchBar {
+        max-width: none;
+    }
+
+    .filterWrapper {
+        min-width: 0;
+    }
+
+    .cardsGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .listRow {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    /* --- PREMIUM WORKFLOW ENGINE OVERHAUL --- */
+    .workflowRoot {
+        height: 100vh;
+        background-color: var(--bg-main);
+    }
+
+    .workflowHeader {
+        padding: 40px 24px 80px;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        gap: 24px;
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        border-radius: 0 0 40px 40px;
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+    }
+
+    .workflowHeaderTitle {
+        font-size: 2.2rem;
+        margin: 8px 0;
+        width: 100%;
+        line-height: 1.1;
+    }
+
+    .workflowHeaderRight {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 24px;
+    }
+
+    .workflowDescEditor {
+        max-width: none;
+        width: 100%;
+        margin-right: 0;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .workflowHeaderPercent {
+        font-size: 4.5rem;
+        margin-top: -10px;
+    }
+
+    .modalCloseIcon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .stepsContainer {
+        padding: 0 20px 140px;
+        /* Large bottom padding for floating bar */
+        margin-top: -40px;
+        /* Pull cards up into the header curve */
+        position: relative;
+        z-index: 20;
+    }
+
+    .timelineTrack {
+        display: none;
+        /* Switch to card style, no more connecting line on mobile */
+    }
+
+    .timelineItem {
+        padding: 0;
+        margin-bottom: 16px;
+    }
+
+    .stepContent {
+        background: var(--bg-card);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+        gap: 16px;
+    }
+
+    .stepDotContainer {
+        display: none;
+        /* We'll use a badge inside the card instead */
+    }
+
+    .stepMainRow {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .stepLabelInput {
+        font-size: 1.25rem;
+        font-weight: 700;
+        width: 100%;
+    }
+
+    .stepActions {
+        background: var(--bg-main);
+        padding: 8px 16px;
+        border-radius: 16px;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .stepDetails {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-top: 8px;
+        padding-top: 20px;
+        border-top: 1px dashed var(--border);
+    }
+
+    .dueDateGroup {
+        justify-content: space-between;
+    }
+
+    .workflowBodyHeader {
+        padding: 24px 24px 48px;
+        /* Extra padding for the cards to overlap */
+        background-color: var(--bg-main);
+    }
+
+    /* Floating Glass Footer */
+    .workflowFooter {
+        position: fixed;
+        bottom: 24px;
+        left: 20px;
+        right: 20px;
+        padding: 8px;
+        gap: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        background: rgba(15, 23, 42, 0.8) !important;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+    }
+
+    .workflowFooter button {
+        border-radius: 18px !important;
+        padding: 16px !important;
+        height: auto !important;
+    }
+}
