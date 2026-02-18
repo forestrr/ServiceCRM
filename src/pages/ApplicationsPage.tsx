@@ -92,7 +92,14 @@ const WorkflowStepItem = ({
 
                     <PremiumCheckmark
                         checked={isCompleted}
-                        onClick={() => updateLocalStep(step.id, { is_completed: !isCompleted })}
+                        onClick={() => {
+                            if (!isCompleted) {
+                                // Trigger completion modal logic via parent
+                                (window as any).triggerStepComplete?.(step);
+                            } else {
+                                updateLocalStep(step.id, { is_completed: false });
+                            }
+                        }}
                     />
 
                     <div className={styles.stepActions}>
@@ -247,6 +254,9 @@ const PremiumTooltip = ({ text, children }: { text: string; children: React.Reac
 
 interface Application {
     id: string;
+    customer_id: string;
+    service_template_id: string;
+    quotation_id?: string;
     status: string;
     progress: number;
     description?: string;
@@ -284,11 +294,41 @@ export const ApplicationsPage = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
+    const [staff, setStaff] = useState<any[]>([]);
+    const [stepToComplete, setStepToComplete] = useState<AppStep | null>(null);
+    const [completionData, setCompletionData] = useState({
+        staff_id: '',
+        internal_cost: 0,
+        provider_id: '',
+        provider_cost: 0,
+        notes: '',
+        is_paid: false,
+        account_id: ''
+    });
+
     const [newAppCustomerId, setNewAppCustomerId] = useState('');
     const [newAppTemplateId, setNewAppTemplateId] = useState('');
 
     useEffect(() => {
         if (user) fetchData();
+
+        // Expose a way for sub-components to trigger the completion modal
+        (window as any).triggerStepComplete = (step: AppStep) => {
+            setStepToComplete(step);
+            setCompletionData({
+                staff_id: '',
+                internal_cost: 0,
+                provider_id: step.provider_id || '',
+                provider_cost: 0,
+                notes: '',
+                is_paid: false,
+                account_id: ''
+            });
+        };
+
+        return () => {
+            delete (window as any).triggerStepComplete;
+        };
     }, [user]);
 
     const fetchData = async () => {
@@ -313,20 +353,29 @@ export const ApplicationsPage = () => {
                     .eq('user_id', user.id),
                 supabase.from('service_providers')
                     .select('id, name')
-                    .eq('user_id', user.id)
+                    .eq('user_id', user.id),
+                supabase.from('staff')
+                    .select('id, full_name')
+                    .eq('is_active', true),
+                supabase.from('accounts')
+                    .select('id, name, current_balance')
             ]);
 
-            const [appsRes, custRes, tempRes, providersRes] = results as any;
+            const [appsRes, custRes, tempRes, providersRes, staffRes, accountsRes] = results as any;
 
             if (appsRes.error) throw appsRes.error;
             if (custRes.error) throw custRes.error;
             if (tempRes.error) throw tempRes.error;
             if (providersRes.error) throw providersRes.error;
+            if (staffRes.error) throw staffRes.error;
+            if (accountsRes.error) throw accountsRes.error;
 
             setApplications(appsRes.data || []);
             setCustomers(custRes.data || []);
             setTemplates(tempRes.data || []);
             setProviders(providersRes.data || []);
+            setStaff(staffRes.data || []);
+            setAccounts(accountsRes.data || []);
         } catch (err) {
             console.error('Error fetching applications:', err);
         } finally {
@@ -364,7 +413,7 @@ export const ApplicationsPage = () => {
                 .insert([{
                     customer_id: newAppCustomerId,
                     service_template_id: newAppTemplateId,
-                    status: 'Active',
+                    status: 'Proposed',
                     progress: 0,
                     user_id: user?.id
                 }])
@@ -534,6 +583,7 @@ export const ApplicationsPage = () => {
                 .from('applications')
                 .update({
                     progress: newProgress,
+                    status: selectedApp.status, // Ensure status is preserved or updated
                     description: selectedApp.description || null
                 })
                 .eq('id', selectedApp.id)
@@ -541,11 +591,204 @@ export const ApplicationsPage = () => {
 
             if (appUpdateErr) throw appUpdateErr;
 
+            // --- AUTO INVOICE LOGIC ---
+            const { data: existingInvoice } = await supabase
+                .from('invoices')
+                .select('*')
+                .eq('application_id', selectedApp.id)
+                .maybeSingle();
+
+            if (existingInvoice) {
+                if (newProgress === 100 && existingInvoice.status === 'draft') {
+                    await supabase
+                        .from('invoices')
+                        .update({
+                            status: 'unpaid',
+                            due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                        })
+                        .eq('id', existingInvoice.id);
+                }
+            } else if (selectedApp.customer_id) {
+                let invoiceItems: any[] = [];
+                let subtotal = 0;
+
+                if (selectedApp.quotation_id) {
+                    const { data: qItems } = await supabase.from('quotation_items').select('*').eq('quotation_id', selectedApp.quotation_id);
+                    if (qItems && qItems.length > 0) {
+                        invoiceItems = qItems.map(qi => ({ description: qi.description, quantity: qi.quantity, unit_price: qi.unit_price, total: qi.total }));
+                        const { data: qV } = await supabase.from('quotations').select('subtotal').eq('id', selectedApp.quotation_id).maybeSingle();
+                        if (qV) subtotal = qV.subtotal;
+                    }
+                } else if (selectedApp.service_template_id) {
+                    const { data: stV } = await supabase.from('service_templates').select('*').eq('id', selectedApp.service_template_id).maybeSingle();
+                    if (stV) {
+                        if (stV.base_charge > 0) {
+                            invoiceItems.push({ description: `${stV.name}: Base Service Fee`, quantity: 1, unit_price: stV.base_charge, total: stV.base_charge });
+                            subtotal += stV.base_charge;
+                        }
+                        if (stV.default_steps && Array.isArray(stV.default_steps)) {
+                            stV.default_steps.forEach((s: any) => {
+                                if (s.charge > 0) {
+                                    invoiceItems.push({ description: `Phase: ${s.label}`, quantity: 1, unit_price: s.charge, total: s.charge });
+                                    subtotal += s.charge;
+                                }
+                            });
+                        }
+                    }
+                }
+
+                if (invoiceItems.length === 0) {
+                    invoiceItems.push({ description: `Service: ${selectedApp.description || 'General Service'}`, quantity: 1, unit_price: 0, total: 0 });
+                }
+
+                const vat = subtotal * 0.05;
+                const total = subtotal + vat;
+
+                const { data: inv, error: invErr } = await supabase
+                    .from('invoices')
+                    .insert([{
+                        application_id: selectedApp.id,
+                        customer_id: selectedApp.customer_id,
+                        invoice_number: `INV-${Math.floor(Math.random() * 900000) + 100000}`,
+                        subtotal, vat, total,
+                        status: newProgress === 100 ? 'unpaid' : 'draft',
+                        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    }])
+                    .select()
+                    .maybeSingle();
+
+                if (invErr) {
+                    console.error('Invoice Error:', invErr);
+                } else if (inv) {
+                    await supabase.from('invoice_items').insert(invoiceItems.map(ii => ({ ...ii, invoice_id: inv.id })));
+                }
+            }
+            // ---------------------------
+
+            // --- WORKFLOW 1: AUTO-QUOTATION LOGIC ---
+            if (selectedApp.status === 'Proposed' && !selectedApp.quotation_id) {
+                // Generate Quotation from Service Pricing
+                const { data: st } = await supabase
+                    .from('service_templates')
+                    .select('*')
+                    .eq('id', selectedApp.service_template_id)
+                    .single();
+
+                if (st) {
+                    const quoteItems = [];
+                    let subtotal = 0;
+
+                    // 1. Base Charge
+                    if (st.base_charge > 0) {
+                        quoteItems.push({
+                            description: `${st.name}: Base Service Fee`,
+                            quantity: 1,
+                            unit_price: st.base_charge,
+                            total: st.base_charge
+                        });
+                        subtotal += st.base_charge;
+                    }
+
+                    // 2. Step Charges
+                    if (st.default_steps && Array.isArray(st.default_steps)) {
+                        st.default_steps.forEach((s: any) => {
+                            if (s.charge > 0) {
+                                quoteItems.push({
+                                    description: `Phase: ${s.label}`,
+                                    quantity: 1,
+                                    unit_price: s.charge,
+                                    total: s.charge
+                                });
+                                subtotal += s.charge;
+                            }
+                        });
+                    }
+
+                    const vat = subtotal * 0.05;
+                    const total = subtotal + vat;
+
+                    const { data: q, error: qErr } = await supabase
+                        .from('quotations')
+                        .insert([{
+                            customer_id: selectedApp.customer_id,
+                            service_template_id: selectedApp.service_template_id,
+                            status: 'draft',
+                            subtotal,
+                            vat,
+                            total,
+                            valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                        }])
+                        .select()
+                        .single();
+
+                    if (q && !qErr) {
+                        const itemsWithQId = quoteItems.map(qi => ({ ...qi, quotation_id: q.id }));
+                        await supabase.from('quotation_items').insert(itemsWithQId);
+
+                        // Link back to application
+                        await supabase
+                            .from('applications')
+                            .update({ quotation_id: q.id })
+                            .eq('id', selectedApp.id);
+                    }
+                }
+            }
+            // ---------------------------
+
             setSelectedApp(null);
             fetchData();
         } catch (err: any) {
             console.error('Error saving changes:', err);
             alert(`Failed to save progress: ${err.message || 'Unknown error'}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const confirmStepCompletion = async () => {
+        if (!stepToComplete || !completionData.staff_id) {
+            alert('Please select the staff member who completed this step.');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            // 1. Update the local state
+            updateLocalStep(stepToComplete.id, { is_completed: true });
+
+            // 2. Insert step log
+            const { error: logErr } = await supabase
+                .from('step_logs')
+                .insert([{
+                    application_id: selectedApp?.id,
+                    step_id: stepToComplete.id,
+                    completed_by: completionData.staff_id,
+                    provider_id: stepToComplete.is_outsource ? completionData.provider_id : null,
+                    internal_cost: completionData.internal_cost,
+                    provider_cost: stepToComplete.is_outsource ? completionData.provider_cost : 0,
+                    completed_at: new Date().toISOString()
+                }]);
+
+            if (logErr) throw logErr;
+
+            // 3. If outsourced, create provider ledger entry
+            if (stepToComplete.is_outsource && completionData.provider_id) {
+                const { error: ledErr } = await supabase
+                    .from('provider_ledger')
+                    .insert([{
+                        provider_id: completionData.provider_id,
+                        application_id: selectedApp?.id,
+                        amount: completionData.provider_cost,
+                        status: 'pending',
+                        description: `Outsourced step: ${stepToComplete.label}`
+                    }]);
+                if (ledErr) throw ledErr;
+            }
+
+            setStepToComplete(null);
+        } catch (err: any) {
+            console.error('Error completing step:', err);
+            alert(`Failed: ${err.message}`);
         } finally {
             setSaving(false);
         }
@@ -693,6 +936,7 @@ export const ApplicationsPage = () => {
                 <div className={styles.kanbanBoard}>
                     {[
                         { id: 'incoming', name: 'Incoming', apps: filteredApps.filter(a => a.status === 'Draft') },
+                        { id: 'proposed', name: 'Proposed', apps: filteredApps.filter(a => a.status === 'Proposed') },
                         { id: 'active', name: 'In Progress', apps: filteredApps.filter(a => a.status === 'Active' && a.progress < 90) },
                         { id: 'finalizing', name: 'Finalizing', apps: filteredApps.filter(a => a.status === 'Active' && a.progress >= 90 && a.progress < 100) },
                         { id: 'completed', name: 'Completed', apps: filteredApps.filter(a => a.progress === 100 || a.status === 'Closed') }
@@ -830,6 +1074,19 @@ export const ApplicationsPage = () => {
                                     <User size={18} />
                                     <span className={styles.workflowHeaderCustomerName}>{selectedApp.customer?.name}</span>
                                 </div>
+                                <div style={{ marginTop: '12px' }}>
+                                    <label className={styles.workflowDescLabel}>Application Status</label>
+                                    <select
+                                        className={styles.statusSelect}
+                                        value={selectedApp.status}
+                                        onChange={(e) => setSelectedApp({ ...selectedApp, status: e.target.value })}
+                                    >
+                                        <option value="Draft">Draft (Incoming)</option>
+                                        <option value="Proposed">Proposed (Generate Quotation)</option>
+                                        <option value="Active">Active (In Progress)</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                </div>
                             </div>
                             <div className={styles.workflowHeaderRight}>
                                 <div className={styles.workflowDescEditor}>
@@ -905,11 +1162,12 @@ export const ApplicationsPage = () => {
                             </Button>
                         </div>
                     </div>
-                )}
-            </Modal>
+                )
+                }
+            </Modal >
 
             {/* --- New Application Modal --- */}
-            <Modal
+            < Modal
                 isOpen={isNewAppModalOpen}
                 onClose={() => setIsNewAppModalOpen(false)}
                 title="Establish New Workflow"
@@ -967,7 +1225,78 @@ export const ApplicationsPage = () => {
                         <Button variant="outline" onClick={() => setIsNewAppModalOpen(false)} style={{ flex: 1, padding: '18px', borderRadius: '16px', fontWeight: 800, fontSize: '1.1rem' }}>Cancel</Button>
                     </div>
                 </div>
-            </Modal>
-        </div>
+            </Modal >
+
+            {/* --- Step Completion Modal --- */}
+            < Modal
+                isOpen={!!stepToComplete}
+                onClose={() => setStepToComplete(null)}
+                title="Phase Accountability & Costing"
+                maxWidth="500px"
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div style={{ padding: '1rem', background: 'var(--bg-hover)', borderRadius: '12px', borderLeft: '4px solid var(--primary)' }}>
+                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>Completing Phase:</p>
+                        <h4 style={{ margin: '0.25rem 0 0 0', color: 'var(--text-main)' }}>{stepToComplete?.label}</h4>
+                    </div>
+
+                    <div>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Assigned Staff Member</label>
+                        <select
+                            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)' }}
+                            value={completionData.staff_id}
+                            onChange={(e) => setCompletionData({ ...completionData, staff_id: e.target.value })}
+                        >
+                            <option value="">Select Staff...</option>
+                            {staff.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+                        </select>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Internal Labor Cost</label>
+                            <input
+                                type="number"
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-main)' }}
+                                value={completionData.internal_cost}
+                                onChange={(e) => setCompletionData({ ...completionData, internal_cost: parseFloat(e.target.value) || 0 })}
+                            />
+                        </div>
+                        {stepToComplete?.is_outsource && (
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Provider Cost</label>
+                                <input
+                                    type="number"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-main)' }}
+                                    value={completionData.provider_cost}
+                                    onChange={(e) => setCompletionData({ ...completionData, provider_cost: parseFloat(e.target.value) || 0 })}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {stepToComplete?.is_outsource && (
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Provider</label>
+                            <select
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)' }}
+                                value={completionData.provider_id}
+                                onChange={(e) => setCompletionData({ ...completionData, provider_id: e.target.value })}
+                            >
+                                <option value="">Select Provider...</option>
+                                {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </select>
+                        </div>
+                    )}
+
+                    <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+                        <Button style={{ flex: 1 }} onClick={confirmStepCompletion} disabled={saving || !completionData.staff_id}>
+                            Confirm Completion
+                        </Button>
+                        <Button variant="outline" onClick={() => setStepToComplete(null)}>Cancel</Button>
+                    </div>
+                </div>
+            </Modal >
+        </div >
     );
 };

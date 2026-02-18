@@ -12,12 +12,14 @@ interface TemplateStep {
     description?: string;
     is_outsource: boolean;
     position: number;
+    charge?: number;
 }
 
 interface ServiceTemplate {
     id: string;
     name: string;
     description?: string;
+    base_charge?: number;
     default_steps: TemplateStep[];
 }
 
@@ -66,7 +68,8 @@ export const SettingsPage = () => {
             id: crypto.randomUUID(),
             label: '',
             is_outsource: false,
-            position: activeTemplate.default_steps.length + 1
+            position: activeTemplate.default_steps.length + 1,
+            charge: 0
         };
         updateTemplate('default_steps', [...activeTemplate.default_steps, newStep]);
     };
@@ -93,6 +96,7 @@ export const SettingsPage = () => {
                 .update({
                     name: activeTemplate.name,
                     description: activeTemplate.description,
+                    base_charge: activeTemplate.base_charge || 0,
                     default_steps: activeTemplate.default_steps
                 })
                 .eq('id', activeTemplate.id)
@@ -114,6 +118,7 @@ export const SettingsPage = () => {
             const { error } = await supabase.from('service_templates').insert([{
                 name: newName,
                 description: newDescription,
+                base_charge: 0,
                 default_steps: [],
                 user_id: user?.id
             }]);
@@ -199,16 +204,30 @@ export const SettingsPage = () => {
                             </div>
                         ) : (
                             <div className={styles.editorForm}>
-                                <div className={styles.editorTopRow}>
+                                <div className={styles.editorMainDetails}>
+                                    <div className={styles.editorField}>
+                                        <Input
+                                            label="Service Name"
+                                            value={activeTemplate.name}
+                                            onChange={(e) => updateTemplate('name', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className={styles.editorField}>
+                                        <Input
+                                            label="Base Pricing (AED)"
+                                            type="number"
+                                            value={activeTemplate.base_charge?.toString() || ''}
+                                            onChange={(e) => updateTemplate('base_charge', parseFloat(e.target.value) || 0)}
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                                <div className={styles.editorField}>
                                     <Input
-                                        label="Template Name"
-                                        value={activeTemplate.name}
-                                        onChange={(e) => updateTemplate('name', e.target.value)}
-                                    />
-                                    <Input
-                                        label="Description"
+                                        label="Service Description"
                                         value={activeTemplate.description || ''}
                                         onChange={(e) => updateTemplate('description', e.target.value)}
+                                        placeholder="Briefly describe what this service covers..."
                                     />
                                 </div>
 
@@ -255,9 +274,20 @@ export const SettingsPage = () => {
                                                             onChange={(e) => updateStep(step.id, 'is_outsource', e.target.checked)}
                                                             className={styles.outsourceCheckbox}
                                                         />
-                                                        Outsource
                                                     </label>
-                                                    <Button variant="ghost" onClick={() => removeStep(step.id)} style={{ color: '#ef4444', padding: '8px' }}>
+
+                                                    <div className={styles.stepChargeWrapper}>
+                                                        <label className={styles.miniLabel}>Charge</label>
+                                                        <input
+                                                            type="number"
+                                                            className={styles.miniInput}
+                                                            placeholder="0.00"
+                                                            value={step.charge?.toString() || ''}
+                                                            onChange={(e) => updateStep(step.id, 'charge', parseFloat(e.target.value) || 0)}
+                                                        />
+                                                    </div>
+
+                                                    <Button variant="ghost" onClick={() => removeStep(step.id)} style={{ color: '#ef4444', padding: '8px', marginTop: '14px' }}>
                                                         <Trash2 size={18} />
                                                     </Button>
                                                 </motion.div>

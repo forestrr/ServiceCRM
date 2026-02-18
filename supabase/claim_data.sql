@@ -6,7 +6,7 @@
 -- Replace 'YOUR_USER_ID_HERE' with the ID you found in Step 1
 DO $$ 
 DECLARE 
-    target_user_id UUID := 'YOUR_USER_ID_HERE'; -- <--- PASTE YOUR ID HERE
+    target_user_id UUID := 'ae5624b0-9a2b-49cb-b6ae-f9e56dc99ba4'; -- <--- PASTE YOUR ID HERE
 BEGIN
     -- Update customers
     UPDATE customers SET user_id = target_user_id WHERE user_id IS NULL;

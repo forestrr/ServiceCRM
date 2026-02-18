@@ -9,7 +9,13 @@ import {
     CheckCircle2,
     Truck,
     LogOut,
-    User
+    User,
+    FileText,
+    Receipt,
+    Wallet,
+    History,
+    Briefcase,
+    BarChart3
 } from 'lucide-react';
 import styles from './Layout.module.css';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,6 +32,12 @@ const Sidebar = () => {
         { icon: <Users size={20} />, label: 'Customers', path: '/customers' },
         { icon: <ClipboardList size={20} />, label: 'Applications', path: '/applications' },
         { icon: <Truck size={20} />, label: 'Service Providers', path: '/providers' },
+        { icon: <FileText size={20} />, label: 'Quotations', path: '/quotations' },
+        { icon: <Receipt size={20} />, label: 'Invoices', path: '/invoices' },
+        { icon: <Wallet size={20} />, label: 'Accounts', path: '/accounts' },
+        { icon: <History size={20} />, label: 'Transactions', path: '/transactions' },
+        { icon: <Briefcase size={20} />, label: 'Staff Execution', path: '/staff' },
+        { icon: <BarChart3 size={20} />, label: 'Reports', path: '/reports' },
         { icon: <Settings size={20} />, label: 'Service Settings', path: '/settings' },
     ];
 

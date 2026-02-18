@@ -9,6 +9,12 @@ import { ProvidersPage } from './pages/ProvidersPage';
 import { CustomerPortal } from './pages/CustomerPortal';
 import { LoginPage } from './pages/LoginPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { QuotationsPage } from './pages/erp/QuotationsPage';
+import { InvoicesPage } from './pages/erp/InvoicesPage';
+import { AccountsPage } from './pages/erp/AccountsPage';
+import { TransactionsPage } from './pages/erp/TransactionsPage';
+import { StaffPage } from './pages/erp/StaffPage';
+import { ReportsPage } from './pages/erp/ReportsPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
@@ -45,6 +51,12 @@ function App() {
                     <Route path="/customers/:id" element={<CustomerProfilePage />} />
                     <Route path="/applications" element={<ApplicationsPage />} />
                     <Route path="/providers" element={<ProvidersPage />} />
+                    <Route path="/quotations" element={<QuotationsPage />} />
+                    <Route path="/invoices" element={<InvoicesPage />} />
+                    <Route path="/accounts" element={<AccountsPage />} />
+                    <Route path="/transactions" element={<TransactionsPage />} />
+                    <Route path="/staff" element={<StaffPage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     {/* Redirect any unknown route to home */}
