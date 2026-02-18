@@ -9,6 +9,7 @@ import styles from './SettingsPage.module.css';
 interface TemplateStep {
     id: string;
     label: string;
+    description?: string;
     is_outsource: boolean;
     position: number;
 }
@@ -233,12 +234,20 @@ export const SettingsPage = () => {
                                                     className={styles.stepItem}
                                                 >
                                                     <span className={styles.stepNumber}>{index + 1}</span>
-                                                    <input
-                                                        value={step.label}
-                                                        onChange={(e) => updateStep(step.id, 'label', e.target.value)}
-                                                        placeholder="Enter step name..."
-                                                        className={styles.stepInput}
-                                                    />
+                                                    <div className={styles.stepMainInfo}>
+                                                        <input
+                                                            value={step.label}
+                                                            onChange={(e) => updateStep(step.id, 'label', e.target.value)}
+                                                            placeholder="Enter step name..."
+                                                            className={styles.stepInput}
+                                                        />
+                                                        <input
+                                                            value={step.description || ''}
+                                                            onChange={(e) => updateStep(step.id, 'description', e.target.value)}
+                                                            placeholder="Add a description (optional)..."
+                                                            className={styles.stepDescInput}
+                                                        />
+                                                    </div>
                                                     <label className={styles.outsourceToggle}>
                                                         <input
                                                             type="checkbox"
@@ -260,7 +269,7 @@ export const SettingsPage = () => {
                                 </div>
 
                                 <div className={styles.editorActions}>
-                                    <Button icon={saving ? Loader2 : Save} disabled={saving} onClick={saveTemplate} style={{ flex: 1 }} className={saving ? 'animate-spin' : ''}>
+                                    <Button icon={saving ? Loader2 : Save} disabled={saving} onClick={saveTemplate} style={{ flex: 1 }}>
                                         {saving ? 'Saving...' : 'Save Template'}
                                     </Button>
                                 </div>

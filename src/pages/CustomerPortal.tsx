@@ -8,6 +8,7 @@ import styles from './CustomerPortal.module.css';
 interface AppStep {
     id: string;
     label: string;
+    description?: string;
     is_completed: boolean;
     position: number;
 }
@@ -16,8 +17,12 @@ interface Application {
     id: string;
     progress: number;
     status: string;
+    description?: string;
     created_at: string;
-    service_template?: { name: string };
+    service_template?: {
+        name: string;
+        description?: string;
+    };
     steps: AppStep[];
 }
 
@@ -54,7 +59,7 @@ export const CustomerPortal = () => {
                 .from('applications')
                 .select(`
                     *,
-                    service_template:service_templates(name),
+                    service_template:service_templates(name, description),
                     steps:application_steps(*)
                 `)
                 .eq('customer_id', customerId)
@@ -121,6 +126,18 @@ export const CustomerPortal = () => {
                                         <span className={styles.statusLabel}>{app.status}</span>
                                     </div>
 
+                                    {app.service_template?.description && (
+                                        <div className={styles.templateDescriptionSection}>
+                                            <p className={styles.templateDescriptionText}>{app.service_template.description}</p>
+                                        </div>
+                                    )}
+
+                                    {app.description && (
+                                        <div className={styles.appDescriptionSection}>
+                                            <p className={styles.appDescriptionText}>{app.description}</p>
+                                        </div>
+                                    )}
+
                                     <div className={styles.progressSection}>
                                         <div className={styles.progressHeader}>
                                             <span className={styles.percent}>{app.progress}%</span>
@@ -151,6 +168,11 @@ export const CustomerPortal = () => {
                                                             <span className={`${styles.stepLabel} ${step.is_completed ? styles.stepLabelCompleted : ''}`}>
                                                                 {step.label}
                                                             </span>
+                                                            {step.description && (
+                                                                <p className={styles.stepDescription}>
+                                                                    {step.description}
+                                                                </p>
+                                                            )}
                                                             <span className={`${styles.stepStatus} ${step.is_completed ? styles.statusCompleted : (isActive ? styles.statusActive : styles.statusPending)}`}>
                                                                 {step.is_completed ? 'Completed' : (isActive ? 'In Progress' : 'Pending')}
                                                             </span>

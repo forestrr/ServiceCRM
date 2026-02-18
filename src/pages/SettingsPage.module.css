@@ -290,3 +290,8 @@
         grid-template-columns: 1fr;
     }
 }
+/* Step Description Extensions */
+.stepMainInfo { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.stepDescInput { background: transparent; border: none; outline: none; font-size: 0.85rem; color: var(--text-muted); padding: 0; }
+.stepItem { align-items: flex-start !important; }
+.stepNumber { margin-top: 4px; }

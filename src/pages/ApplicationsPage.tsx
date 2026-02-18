@@ -28,6 +28,7 @@ import { useAuth } from '../contexts/AuthContext';
 interface AppStep {
     id: string;
     label: string;
+    description?: string;
     is_completed: boolean;
     is_outsource: boolean;
     outsource_provider?: string;
@@ -77,6 +78,14 @@ const WorkflowStepItem = ({
                             value={step.label}
                             onChange={(e) => updateLocalStep(step.id, { label: e.target.value })}
                             className={`${styles.stepLabelInput} ${isCompleted ? styles.stepLabelCompleted : ''}`}
+                            placeholder="Step name..."
+                        />
+                        <textarea
+                            value={step.description || ''}
+                            onChange={(e) => updateLocalStep(step.id, { description: e.target.value })}
+                            className={styles.stepDescTextarea}
+                            placeholder="Add internal description or instructions for this phase..."
+                            rows={2}
                         />
                         <p className={styles.stepSequence}>Phase {index + 1}</p>
                     </div>
@@ -240,6 +249,7 @@ interface Application {
     id: string;
     status: string;
     progress: number;
+    description?: string;
     created_at: string;
     customer?: { name: string };
     service_template?: { name: string; description: string; default_steps: any[] };
@@ -486,6 +496,7 @@ export const ApplicationsPage = () => {
                     const data: any = {
                         application_id: selectedApp.id,
                         label: s.label,
+                        description: s.description || null,
                         is_completed: s.is_completed,
                         is_outsource: s.is_outsource,
                         outsource_provider: s.outsource_provider,
@@ -519,17 +530,22 @@ export const ApplicationsPage = () => {
             }
 
             const newProgress = calculateProgress(localSteps);
-            await supabase
+            const { error: appUpdateErr } = await supabase
                 .from('applications')
-                .update({ progress: newProgress })
+                .update({
+                    progress: newProgress,
+                    description: selectedApp.description || null
+                })
                 .eq('id', selectedApp.id)
                 .eq('user_id', user?.id);
 
+            if (appUpdateErr) throw appUpdateErr;
+
             setSelectedApp(null);
             fetchData();
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error saving changes:', err);
-            alert('Failed to save progress.');
+            alert(`Failed to save progress: ${err.message || 'Unknown error'}`);
         } finally {
             setSaving(false);
         }
@@ -623,13 +639,21 @@ export const ApplicationsPage = () => {
                                     <span className={styles.appDescSeparator}>•</span>
                                     <span className={styles.appStepCount}>{app.steps.length} Steps</span>
                                 </div>
+                                {app.description && (
+                                    <p className={styles.cardAppDescription}>{app.description}</p>
+                                )}
                                 <div className={styles.appCustomer}>
                                     <div className={styles.appCustomerAvatar}><User size={14} /></div>
                                     <span className={styles.appCustomerName}>{app.customer?.name}</span>
                                 </div>
                                 <div className={styles.activeStepRow}>
                                     <span className={styles.activeStepLabel}>Working Now:</span>
-                                    <span className={styles.activeStepValue}>{getCurrentStepLabel(app.steps)}</span>
+                                    <div className={styles.activeStepContent}>
+                                        <span className={styles.activeStepValue}>{getCurrentStepLabel(app.steps)}</span>
+                                        {app.steps.find(s => !s.is_completed)?.description && (
+                                            <p className={styles.cardStepDesc}>{app.steps.find(s => !s.is_completed)?.description}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <div className={styles.cardProgress}>
@@ -697,6 +721,8 @@ export const ApplicationsPage = () => {
                                                 <span className={`${styles.kanbanProgress} ${app.progress === 100 ? styles.kanbanProgressDone : ''}`}>{app.progress}%</span>
                                             </div>
                                             <h4 className={styles.kanbanAppTitle}>{app.service_template?.name}</h4>
+                                            {app.service_template?.description && <p className={styles.kanbanTemplateDesc}>{app.service_template.description}</p>}
+                                            {app.description && <p className={styles.kanbanAppDesc}>{app.description}</p>}
                                             <div className={styles.kanbanAppCustomer}>
                                                 <div className={styles.appCustomerAvatar}><User size={12} /></div>
                                                 <span className={styles.appCustomerName}>{app.customer?.name}</span>
@@ -740,6 +766,8 @@ export const ApplicationsPage = () => {
                                     <span className={styles.appDate}>{new Date(app.created_at).toLocaleDateString()}</span>
                                 </div>
                                 <h3 className={styles.appServiceName}>{app.service_template?.name}</h3>
+                                {app.service_template?.description && <p className={styles.listTemplateDesc}>{app.service_template.description}</p>}
+                                {app.description && <p className={styles.listAppDesc}>{app.description}</p>}
                                 <div className={styles.listActiveStep}>
                                     <span className={styles.listActiveLabel}>Currently:</span>
                                     <span className={styles.listActiveValue}>{getCurrentStepLabel(app.steps)}</span>
@@ -804,6 +832,16 @@ export const ApplicationsPage = () => {
                                 </div>
                             </div>
                             <div className={styles.workflowHeaderRight}>
+                                <div className={styles.workflowDescEditor}>
+                                    <label className={styles.workflowDescLabel}>Service Notes / Description</label>
+                                    <textarea
+                                        value={selectedApp.description || ''}
+                                        onChange={(e) => setSelectedApp({ ...selectedApp, description: e.target.value })}
+                                        className={styles.workflowDescTextarea}
+                                        placeholder="Add high-level details about this specific application..."
+                                        rows={2}
+                                    />
+                                </div>
                                 <div className={styles.workflowHeaderProgress}>
                                     <div className={styles.workflowHeaderPercent}>{calculateProgress(localSteps)}%</div>
                                     <div className={styles.workflowHeaderProgressLabel}>Progress Sync</div>

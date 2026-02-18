@@ -108,6 +108,32 @@
     font-weight: 700;
 }
 
+.appDescriptionSection {
+    margin: 0 0 16px 0;
+    padding: 16px;
+    background: var(--bg-main);
+    border-radius: 16px;
+    border-left: 4px solid var(--primary);
+}
+
+.appDescriptionText {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.templateDescriptionSection {
+    margin: 0 0 12px 0;
+    padding: 0 16px;
+}
+
+.templateDescriptionText {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
 /* Progress Section */
 .progressSection {
     margin-bottom: 32px;

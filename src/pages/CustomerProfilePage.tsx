@@ -12,13 +12,16 @@ import {
     Building2,
     User,
     Upload,
-    Trash2
+    Trash2,
+    CheckCircle2
 } from 'lucide-react';
 import { Button, Card, Modal, Input } from '../components/UI';
 import { Badge } from '../components/Badge';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useFileUpload } from '../hooks/useFileUpload';
+import { FileDropzone } from '../components/FileDropzone';
 import styles from './CustomerProfilePage.module.css';
 
 interface Document {
@@ -64,6 +67,7 @@ export const CustomerProfilePage = () => {
         expiry_date: '',
         file: null as File | null
     });
+    const { uploadFile, deleteFile, error: uploadError } = useFileUpload();
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -111,41 +115,49 @@ export const CustomerProfilePage = () => {
     };
 
     const handleFileUpload = async () => {
-        if (!newDocData.file || !newDocData.name || !id) {
+        if (!newDocData.file || !newDocData.name || !id || !user) {
             alert('Please provide a document name and select a file.');
             return;
         }
 
         setUploading(true);
+        let storagePath = '';
         try {
             const fileExt = newDocData.file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `${id}/${fileName}`;
+            const fileName = `${crypto.randomUUID()}.${fileExt}`;
+            storagePath = `${id}/${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
-                .from('documents')
-                .upload(filePath, newDocData.file);
+            // 1. Upload to Storage
+            await uploadFile(newDocData.file, {
+                bucket: 'documents',
+                path: storagePath,
+                maxSizeMB: 15,
+                allowedTypes: ['image/jpeg', 'image/png', 'application/pdf']
+            });
 
-            if (uploadError) throw uploadError;
-
+            // 2. Record in Database
             const { error: dbError } = await supabase
                 .from('documents')
                 .insert([{
                     customer_id: id,
                     name: newDocData.name,
-                    file_path: filePath,
+                    file_path: storagePath,
                     expiry_date: newDocData.expiry_date || null,
                     version: 'v1.0'
                 }]);
 
-            if (dbError) throw dbError;
+            if (dbError) {
+                // Atomic Cleanup: If DB fails, remove the orphaned storage file immediately
+                await deleteFile('documents', storagePath);
+                throw dbError;
+            }
 
             setIsUploadModalOpen(false);
             setNewDocData({ name: '', expiry_date: '', file: null });
             fetchCustomerData();
-        } catch (err) {
+        } catch (err: any) {
             console.error('Upload error:', err);
-            alert('Failed to upload document. Ensure you have a "documents" bucket in Supabase storage!');
+            alert(`Failed to upload document: ${err.message || 'Unknown error'}`);
         } finally {
             setUploading(false);
         }
@@ -401,13 +413,22 @@ export const CustomerProfilePage = () => {
                         onChange={(e) => setNewDocData({ ...newDocData, expiry_date: e.target.value })}
                     />
 
-                    <div>
-                        <label className={styles.fileInputLabel}>Select File</label>
-                        <input
-                            type="file"
-                            onChange={(e) => setNewDocData({ ...newDocData, file: e.target.files?.[0] || null })}
-                            className={styles.fileInput}
+                    <div style={{ marginBottom: '8px' }}>
+                        <label className={styles.fileInputLabel}>Secure Dropzone</label>
+                        <FileDropzone
+                            onFileSelect={(file) => {
+                                setNewDocData(prev => ({ ...prev, file, name: prev.name || file.name.split('.')[0] }));
+                            }}
+                            uploading={uploading}
+                            error={uploadError}
+                            maxSizeMB={15}
                         />
+                        {newDocData.file && !uploading && (
+                            <div className={styles.selectedFile}>
+                                <CheckCircle2 size={14} color="#10b981" />
+                                <span>{newDocData.file.name}</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className={styles.uploadActions}>
@@ -416,7 +437,6 @@ export const CustomerProfilePage = () => {
                             onClick={handleFileUpload}
                             disabled={uploading || !newDocData.file || !newDocData.name}
                             icon={uploading ? Loader2 : Upload}
-                            className={uploading ? 'animate-spin' : ''}
                         >
                             {uploading ? 'Uploading...' : 'Upload Document'}
                         </Button>

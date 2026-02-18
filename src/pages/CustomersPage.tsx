@@ -284,7 +284,6 @@ export const CustomersPage = () => {
                             onClick={handleAddCustomer}
                             disabled={saving || !formData.name || !formData.email}
                             icon={saving ? Loader2 : UserPlus}
-                            className={saving ? 'animate-spin' : ''}
                         >
                             {saving ? 'Creating...' : 'Create Customer'}
                         </Button>
