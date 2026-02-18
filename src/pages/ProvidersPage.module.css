@@ -29,7 +29,7 @@
 }
 
 .sidebar {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius);
     border: 1px solid var(--border);
     display: flex;
@@ -41,7 +41,7 @@
 .sidebarHeader {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
-    background-color: #f8fafc;
+    background-color: var(--bg-main);
 }
 
 .sidebarLabel {
@@ -70,7 +70,7 @@
 }
 
 .providerItem:hover {
-    background-color: #f1f5f9;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .providerItemActive {
@@ -91,7 +91,7 @@
 .editorCard {
     height: calc(100vh - 200px);
     overflow-y: auto;
-    background: white;
+    background: var(--bg-card);
     padding: 32px;
 }
 
@@ -133,7 +133,7 @@
     padding: 16px;
     border-radius: 12px;
     border: 1px solid var(--border);
-    background-color: #f8fafc;
+    background-color: var(--bg-main);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -168,18 +168,24 @@
 }
 
 .statusPending {
-    background-color: #fef3c7;
-    color: #d97706;
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
 }
 
 .statusDone {
-    background-color: #dcfce7;
-    color: #16a34a;
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
 }
 
 .deleteBtn {
-    color: #94748b;
+    color: var(--text-muted);
     transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .deleteBtn:hover {

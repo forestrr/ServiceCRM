@@ -68,22 +68,89 @@
 
 .footer {
     margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.notificationBtn {
+.themeToggleWrapper {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.userInfo {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px;
+    margin-bottom: 8px;
+}
+
+.userAvatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary), #818cf8);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+}
+
+.userDetails {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.userName {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.userEmail {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.logoutBtn,
+.profileBtn,
+.notificationBtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
     border-radius: 8px;
     cursor: pointer;
     color: #94a3b8;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
+.logoutBtn:hover,
+.profileBtn:hover,
 .notificationBtn:hover {
     background-color: rgba(255, 255, 255, 0.05);
     color: #cbd5e1;
+}
+
+.logoutBtn {
+    color: #fca5a5;
+}
+
+.logoutBtn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 /* Layout Root */

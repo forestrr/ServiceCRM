@@ -14,8 +14,6 @@ import {
     Check,
     LayoutGrid,
     List,
-    ArrowUp,
-    ArrowDown,
     Columns
 } from 'lucide-react';
 import { Button, Modal } from '../components/UI';
@@ -25,6 +23,7 @@ import { ProviderDropdown } from '../components/ProviderDropdown';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import styles from './ApplicationsPage.module.css';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AppStep {
     id: string;
@@ -36,6 +35,206 @@ interface AppStep {
     expiry_date?: string;
     position: number;
 }
+
+// Sub-component for individual workflow steps to fix "Rules of Hooks" violation
+const WorkflowStepItem = ({
+    step,
+    index,
+    isCompleted,
+    isActive,
+    updateLocalStep,
+    removeLocalStep,
+    providers
+}: {
+    step: AppStep;
+    index: number;
+    isCompleted: boolean;
+    isActive: boolean;
+    updateLocalStep: (id: string, updates: Partial<AppStep>) => void;
+    removeLocalStep: (id: string) => void;
+    providers: any[];
+}) => {
+    const dragControls = useDragControls();
+
+    return (
+        <Reorder.Item
+            key={step.id}
+            value={step}
+            dragControls={dragControls}
+            dragListener={false}
+            className={styles.timelineItem}
+        >
+            <div className={styles.stepDotContainer}>
+                <div className={`${styles.stepDot} ${isCompleted ? styles.stepDotCompleted : (isActive ? styles.stepDotActive : '')}`}>
+                    {isCompleted ? <Check size={18} strokeWidth={3} /> : (index + 1)}
+                </div>
+            </div>
+
+            <div className={styles.stepContent}>
+                <div className={styles.stepMainRow}>
+                    <div style={{ flex: 1 }}>
+                        <input
+                            value={step.label}
+                            onChange={(e) => updateLocalStep(step.id, { label: e.target.value })}
+                            className={`${styles.stepLabelInput} ${isCompleted ? styles.stepLabelCompleted : ''}`}
+                        />
+                        <p className={styles.stepSequence}>Phase {index + 1}</p>
+                    </div>
+
+                    <PremiumCheckmark
+                        checked={isCompleted}
+                        onClick={() => updateLocalStep(step.id, { is_completed: !isCompleted })}
+                    />
+
+                    <div className={styles.stepActions}>
+                        <div className={styles.reorderGroup}>
+                            <div
+                                className={styles.dragHandle}
+                                onPointerDown={(e) => dragControls.start(e)}
+                                title="Drag to Reorder"
+                            >
+                                <GripVertical size={20} />
+                            </div>
+                        </div>
+
+                        <Button variant="ghost" onClick={() => removeLocalStep(step.id)} className={styles.stepDeleteBtn}>
+                            <Trash2 size={18} />
+                        </Button>
+                    </div>
+                </div>
+
+                <div className={styles.stepDetails}>
+                    <div className={styles.outsourceGroup}>
+                        <div className={styles.outsourceCheckGroup}>
+                            <input
+                                type="checkbox"
+                                checked={step.is_outsource}
+                                onChange={(e) => updateLocalStep(step.id, { is_outsource: e.target.checked })}
+                                id={`outsource-${step.id}`}
+                                className={styles.outsourceCheckbox}
+                            />
+                            <label htmlFor={`outsource-${step.id}`} className={styles.outsourceLabel}>Outsourced</label>
+                        </div>
+                        {step.is_outsource && (
+                            <ProviderDropdown
+                                providers={providers}
+                                selectedId={step.provider_id}
+                                onSelect={(p) => {
+                                    updateLocalStep(step.id, {
+                                        provider_id: p?.id || undefined,
+                                        outsource_provider: p?.name || ''
+                                    });
+                                }}
+                            />
+                        )}
+                    </div>
+
+                    <div className={styles.dueDateGroup}>
+                        <div className={styles.dueDateLabel}>
+                            <Calendar size={16} />
+                            <label className={styles.dueDateLabelText}>Due:</label>
+                        </div>
+                        <input
+                            type="date"
+                            value={step.expiry_date || ''}
+                            onChange={(e) => updateLocalStep(step.id, { expiry_date: e.target.value })}
+                            className={`${styles.dueDateInput} ${step.expiry_date ? styles.dueDateInputSet : ''}`}
+                        />
+                    </div>
+                </div>
+            </div>
+        </Reorder.Item>
+    );
+};
+
+// Custom Status Dropdown to provide better control over "box" and fonts
+const StatusFilterDropdown = ({
+    value,
+    onChange
+}: {
+    value: 'all' | 'Active' | 'Completed';
+    onChange: (val: 'all' | 'Active' | 'Completed') => void;
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const options = [
+        { label: 'Status: All', value: 'all' },
+        { label: 'Status: Active', value: 'Active' },
+        { label: 'Status: Completed', value: 'Completed' }
+    ] as const;
+
+    const currentLabel = options.find(opt => opt.value === value)?.label;
+
+    return (
+        <div className={styles.filterWrapper}>
+            <div
+                className={`${styles.filterTrigger} ${isOpen ? styles.filterTriggerOpen : ''}`}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <Tag size={18} className={styles.filterIcon} />
+                <span className={styles.filterTriggerText}>{currentLabel}</span>
+                <ChevronRight size={18} className={`${styles.filterChevron} ${isOpen ? styles.filterChevronOpen : ''}`} />
+            </div>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        <div className={styles.filterBackdrop} onClick={() => setIsOpen(false)} />
+                        <motion.div
+                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className={styles.filterMenuBox}
+                        >
+                            {options.map((opt) => (
+                                <div
+                                    key={opt.value}
+                                    className={`${styles.filterOption} ${value === opt.value ? styles.filterOptionActive : ''}`}
+                                    onClick={() => {
+                                        onChange(opt.value);
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    <span className={styles.filterOptionText}>{opt.label}</span>
+                                    {value === opt.value && <Check size={16} className={styles.filterOptionCheck} />}
+                                </div>
+                            ))}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+// Premium Tooltip component for high-end feel
+const PremiumTooltip = ({ text, children }: { text: string; children: React.ReactNode }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+        <div
+            className={styles.tooltipWrapper}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            {children}
+            <AnimatePresence>
+                {isHovered && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className={styles.tooltipBox}
+                    >
+                        <div className={styles.tooltipArrow} />
+                        {text}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
 
 interface Application {
     id: string;
@@ -60,8 +259,10 @@ interface ServiceTemplate {
 }
 
 export const ApplicationsPage = () => {
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'kanban'>('kanban');
+    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'kanban'>('list');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'Active' | 'Completed'>('all');
     const [isNewAppModalOpen, setIsNewAppModalOpen] = useState(false);
 
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -144,11 +345,11 @@ export const ApplicationsPage = () => {
                     customer_id: newAppCustomerId,
                     service_template_id: newAppTemplateId,
                     status: 'Active',
-                    progress: 0
+                    progress: 0,
+                    user_id: user?.id
                 }])
                 .select()
                 .single();
-
             if (appErr) throw appErr;
 
             const template = templates.find(t => t.id === newAppTemplateId);
@@ -309,11 +510,17 @@ export const ApplicationsPage = () => {
         }
     };
 
-    const filteredApps = applications.filter(app =>
-        app.customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.service_template?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredApps = applications.filter(app => {
+        const matchesSearch = app.customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            app.service_template?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            app.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesStatus = statusFilter === 'all' ||
+            (statusFilter === 'Active' && app.progress < 100) ||
+            (statusFilter === 'Completed' && app.progress === 100);
+
+        return matchesSearch && matchesStatus;
+    });
 
     const getStepChipClass = (step: AppStep, allSteps: AppStep[]) => {
         if (step.is_completed) return styles.stepChipCompleted;
@@ -353,13 +560,19 @@ export const ApplicationsPage = () => {
                 </div>
             </div>
 
-            <div className={styles.searchBar}>
-                <Search size={18} className={styles.searchIcon} />
-                <input
-                    placeholder="Search by ID, customer, or service..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className={styles.searchInput}
+            <div className={styles.toolbar}>
+                <div className={styles.searchBar}>
+                    <Search size={18} className={styles.searchIcon} />
+                    <input
+                        placeholder="Search by ID, customer, or service..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className={styles.searchInput}
+                    />
+                </div>
+                <StatusFilterDropdown
+                    value={statusFilter}
+                    onChange={setStatusFilter}
                 />
             </div>
 
@@ -406,17 +619,19 @@ export const ApplicationsPage = () => {
                             <div className={styles.cardFooter}>
                                 <div className={styles.stepChips}>
                                     {[...app.steps].sort((a, b) => a.position - b.position).map((step) => (
-                                        <div key={step.id} className={`${styles.stepChip} ${getStepChipClass(step, app.steps)}`} data-tooltip={step.label}>
-                                            {step.is_completed ? <CheckCircle2 size={14} /> : (step.is_outsource ? <Tag size={14} /> : <Clock size={14} />)}
-                                            {step.is_outsource && !step.is_completed && <span className={styles.stepChipDot} />}
-                                        </div>
+                                        <PremiumTooltip key={step.id} text={step.label}>
+                                            <div className={`${styles.stepChip} ${getStepChipClass(step, app.steps)}`}>
+                                                {step.is_completed ? <CheckCircle2 size={14} /> : (step.is_outsource ? <Tag size={14} /> : <Clock size={14} />)}
+                                                {step.is_outsource && !step.is_completed && <span className={styles.stepChipDot} />}
+                                            </div>
+                                        </PremiumTooltip>
                                     ))}
                                 </div>
                                 <div className={styles.openBtn}>
                                     <Button variant="ghost" onClick={(e) => deleteApplication(app.id, e)} className={styles.appDeleteBtn}>
                                         <Trash2 size={16} />
                                     </Button>
-                                    <Button variant="ghost" style={{ padding: '8px', borderRadius: '10px', backgroundColor: '#f8fafc' }} onClick={(e) => { e.stopPropagation(); openWorkflow(app); }}>
+                                    <Button variant="ghost" style={{ padding: '8px', borderRadius: '10px', backgroundColor: 'var(--bg-main)' }} onClick={(e) => { e.stopPropagation(); openWorkflow(app); }}>
                                         <ChevronRight size={18} />
                                     </Button>
                                 </div>
@@ -520,17 +735,19 @@ export const ApplicationsPage = () => {
                             </div>
                             <div className={styles.stepChips}>
                                 {[...app.steps].sort((a, b) => a.position - b.position).map((step) => (
-                                    <div key={step.id} className={`${styles.stepChip} ${getStepChipClass(step, app.steps)}`} data-tooltip={step.label}>
-                                        {step.is_completed ? <CheckCircle2 size={14} /> : (step.is_outsource ? <Tag size={14} /> : <Clock size={14} />)}
-                                        {step.is_outsource && !step.is_completed && <span className={styles.stepChipDot} />}
-                                    </div>
+                                    <PremiumTooltip key={step.id} text={step.label}>
+                                        <div className={`${styles.stepChip} ${getStepChipClass(step, app.steps)}`}>
+                                            {step.is_completed ? <CheckCircle2 size={14} /> : (step.is_outsource ? <Tag size={14} /> : <Clock size={14} />)}
+                                            {step.is_outsource && !step.is_completed && <span className={styles.stepChipDot} />}
+                                        </div>
+                                    </PremiumTooltip>
                                 ))}
                             </div>
                             <div className={styles.openBtn}>
                                 <Button variant="ghost" onClick={(e) => deleteApplication(app.id, e)} className={styles.appDeleteBtn}>
                                     <Trash2 size={16} />
                                 </Button>
-                                <Button variant="ghost" style={{ padding: '8px', borderRadius: '10px', backgroundColor: '#f8fafc' }} onClick={(e) => { e.stopPropagation(); openWorkflow(app); }}>
+                                <Button variant="ghost" style={{ padding: '8px', borderRadius: '10px', backgroundColor: 'var(--bg-main)' }} onClick={(e) => { e.stopPropagation(); openWorkflow(app); }}>
                                     <ChevronRight size={18} />
                                 </Button>
                             </div>
@@ -595,102 +812,18 @@ export const ApplicationsPage = () => {
                                     className={styles.stepsList}
                                 >
                                     <AnimatePresence mode="popLayout">
-                                        {localSteps.map((step, index) => {
-                                            const isCompleted = step.is_completed;
-                                            const isActive = !isCompleted && (index === 0 || localSteps[index - 1].is_completed);
-                                            // Reorder.Item requires a drag control for custom handles
-                                            const dragControls = useDragControls();
-
-                                            return (
-                                                <Reorder.Item
-                                                    key={step.id}
-                                                    value={step}
-                                                    dragControls={dragControls}
-                                                    dragListener={false}
-                                                    className={styles.timelineItem}
-                                                >
-                                                    <div className={styles.stepDotContainer}>
-                                                        <div className={`${styles.stepDot} ${isCompleted ? styles.stepDotCompleted : (isActive ? styles.stepDotActive : '')}`}>
-                                                            {isCompleted ? <Check size={18} strokeWidth={3} /> : (index + 1)}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className={styles.stepContent}>
-                                                        <div className={styles.stepMainRow}>
-                                                            <div style={{ flex: 1 }}>
-                                                                <input
-                                                                    value={step.label}
-                                                                    onChange={(e) => updateLocalStep(step.id, { label: e.target.value })}
-                                                                    className={`${styles.stepLabelInput} ${isCompleted ? styles.stepLabelCompleted : ''}`}
-                                                                />
-                                                                <p className={styles.stepSequence}>Phase {index + 1}</p>
-                                                            </div>
-
-                                                            <PremiumCheckmark
-                                                                checked={isCompleted}
-                                                                onClick={() => updateLocalStep(step.id, { is_completed: !isCompleted })}
-                                                            />
-
-                                                            <div className={styles.stepActions}>
-                                                                <div className={styles.reorderGroup}>
-                                                                    <div
-                                                                        className={styles.dragHandle}
-                                                                        onPointerDown={(e) => dragControls.start(e)}
-                                                                        title="Drag to Reorder"
-                                                                    >
-                                                                        <GripVertical size={20} />
-                                                                    </div>
-                                                                </div>
-
-                                                                <Button variant="ghost" onClick={() => removeLocalStep(step.id)} className={styles.stepDeleteBtn}>
-                                                                    <Trash2 size={18} />
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className={styles.stepDetails}>
-                                                            <div className={styles.outsourceGroup}>
-                                                                <div className={styles.outsourceCheckGroup}>
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={step.is_outsource}
-                                                                        onChange={(e) => updateLocalStep(step.id, { is_outsource: e.target.checked })}
-                                                                        id={`outsource-${step.id}`}
-                                                                        className={styles.outsourceCheckbox}
-                                                                    />
-                                                                    <label htmlFor={`outsource-${step.id}`} className={styles.outsourceLabel}>Outsourced</label>
-                                                                </div>
-                                                                {step.is_outsource && (
-                                                                    <ProviderDropdown
-                                                                        providers={providers}
-                                                                        selectedId={step.provider_id}
-                                                                        onSelect={(p) => {
-                                                                            updateLocalStep(step.id, {
-                                                                                provider_id: p?.id || undefined,
-                                                                                outsource_provider: p?.name || ''
-                                                                            });
-                                                                        }}
-                                                                    />
-                                                                )}
-                                                            </div>
-
-                                                            <div className={styles.dueDateGroup}>
-                                                                <div className={styles.dueDateLabel}>
-                                                                    <Calendar size={16} />
-                                                                    <label className={styles.dueDateLabelText}>Due:</label>
-                                                                </div>
-                                                                <input
-                                                                    type="date"
-                                                                    value={step.expiry_date || ''}
-                                                                    onChange={(e) => updateLocalStep(step.id, { expiry_date: e.target.value })}
-                                                                    className={`${styles.dueDateInput} ${step.expiry_date ? styles.dueDateInputSet : ''}`}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </Reorder.Item>
-                                            );
-                                        })}
+                                        {localSteps.map((step, index) => (
+                                            <WorkflowStepItem
+                                                key={step.id}
+                                                step={step}
+                                                index={index}
+                                                isCompleted={step.is_completed}
+                                                isActive={!step.is_completed && (index === 0 || localSteps[index - 1].is_completed)}
+                                                updateLocalStep={updateLocalStep}
+                                                removeLocalStep={removeLocalStep}
+                                                providers={providers}
+                                            />
+                                        ))}
                                     </AnimatePresence>
                                 </Reorder.Group>
                             </div>
@@ -731,7 +864,7 @@ export const ApplicationsPage = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div className={styles.blueprintHeader}>
-                            <Tag size={20} color="#7c3aed" />
+                            <Tag size={20} color="var(--primary)" />
                             <label className={styles.newAppLabel}>2. Select Workflow Blueprint</label>
                         </div>
                         <div className={styles.templateList}>

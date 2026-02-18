@@ -5,6 +5,7 @@ import { Avatar } from '../components/Avatar';
 import { Badge } from '../components/Badge';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './CustomersPage.module.css';
 
 interface Customer {
@@ -20,6 +21,7 @@ interface Customer {
 }
 
 export const CustomersPage = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -87,7 +89,8 @@ export const CustomersPage = () => {
                     email: formData.email,
                     phone: formData.phone,
                     whatsapp: formData.whatsapp,
-                    details: formData.details
+                    details: formData.details,
+                    user_id: user?.id
                 }]);
 
             if (error) throw error;

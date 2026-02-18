@@ -1,20 +1,20 @@
 :root {
-  /* HSL Colors - Sleek & Modern */
-  --primary-h: 220;
-  --primary-s: 70%;
-  --primary-l: 50%;
-
-  --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-  --primary-light: hsl(var(--primary-h), var(--primary-s), 95%);
-  --primary-dark: hsl(var(--primary-h), var(--primary-s), 40%);
+  /* Premium Aesthetic Palette */
+  --primary: #6366f1;
+  /* Indigo 500 */
+  --primary-light: rgba(99, 102, 241, 0.1);
+  --primary-dark: #4f46e5;
+  --secondary: #06b6d4;
+  /* Cyan 500 */
 
   --bg-main: #f8fafc;
-  --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-card: #ffffff;
   --bg-sidebar: #0f172a;
+  /* Slate 900 */
 
-  --text-main: #1e293b;
+  --text-main: #0f172a;
   --text-muted: #64748b;
-  --text-on-sidebar: #f8fafc;
+  --text-on-sidebar: #f1f5f9;
 
   --border: #e2e8f0;
   --radius: 12px;
@@ -25,6 +25,31 @@
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.2);
   --glass-blur: blur(10px);
+}
+
+:root.dark {
+  /* Theme Variables - Deep Dark Mode */
+  --primary: #818cf8;
+  /* Indigo 400 */
+  --primary-light: rgba(129, 140, 248, 0.15);
+  --primary-dark: #6366f1;
+
+  --bg-main: #020617;
+  /* Slate 950 */
+  --bg-card: #0f172a;
+  /* Slate 900 */
+  --bg-sidebar: #020617;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-on-sidebar: #f8fafc;
+
+  --border: #1e293b;
+  --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.05);
 }
 
 html {

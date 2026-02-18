@@ -3,6 +3,7 @@ import { Plus, Trash2, Loader2, Save, ArrowUpDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Card, Input, Modal } from '../components/UI';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './SettingsPage.module.css';
 
 interface TemplateStep {
@@ -20,6 +21,7 @@ interface ServiceTemplate {
 }
 
 export const SettingsPage = () => {
+    const { user } = useAuth();
     const [templates, setTemplates] = useState<ServiceTemplate[]>([]);
     const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -108,7 +110,8 @@ export const SettingsPage = () => {
             const { error } = await supabase.from('service_templates').insert([{
                 name: newName,
                 description: newDescription,
-                default_steps: []
+                default_steps: [],
+                user_id: user?.id
             }]);
 
             if (error) throw error;
@@ -165,13 +168,15 @@ export const SettingsPage = () => {
                                     className={`${styles.templateItem} ${activeTemplateId === t.id ? styles.templateItemActive : ''}`}
                                 >
                                     <p className={`${styles.templateItemName} ${activeTemplateId === t.id ? styles.templateItemNameActive : ''}`}>{t.name}</p>
+                                    {t.description && <p className={styles.templateItemDesc}>{t.description}</p>}
                                     <p className={styles.templateItemSteps}>{t.default_steps.length} Steps</p>
-                                    <button
+                                    <Button
+                                        variant="ghost"
                                         onClick={(e) => { e.stopPropagation(); deleteTemplate(t.id); }}
-                                        className={styles.templateDeleteBtn}
+                                        style={{ padding: '8px', color: 'var(--text-muted)' }}
                                     >
                                         <Trash2 size={16} />
-                                    </button>
+                                    </Button>
                                 </div>
                             ))}
                         </div>

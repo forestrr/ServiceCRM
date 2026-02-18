@@ -1,6 +1,6 @@
 .portalRoot {
     min-height: 100vh;
-    background-color: #f8fafc;
+    background-color: var(--bg-main);
     padding: 40px 20px;
     font-family: var(--font-main, inherit);
 }
@@ -38,19 +38,19 @@
 .brandName {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--text-main);
     letter-spacing: -0.02em;
 }
 
 .welcomeText {
     font-size: 2rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-main);
     margin-bottom: 8px;
 }
 
 .welcomeSubtext {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 1.1rem;
 }
 
@@ -58,7 +58,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 24px;
-    color: #1e293b;
+    color: var(--text-main);
 }
 
 /* Application Cards */
@@ -69,11 +69,11 @@
 }
 
 .appCard {
-    background: white;
+    background: var(--bg-card);
     border-radius: 24px;
     padding: 32px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
 .cardTop {
@@ -86,7 +86,7 @@
 .serviceName {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-main);
     margin-bottom: 4px;
 }
 
@@ -127,7 +127,7 @@
 
 .progressTrack {
     height: 12px;
-    background-color: #f1f5f9;
+    background-color: var(--border);
     border-radius: 100px;
     overflow: hidden;
 }
@@ -154,7 +154,7 @@
     top: 8px;
     bottom: 8px;
     width: 2px;
-    background-color: #f1f5f9;
+    background-color: var(--border);
 }
 
 .stepItem {
@@ -203,7 +203,7 @@
 
 .stepLabel {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-main);
 }
 
 .stepLabelCompleted {

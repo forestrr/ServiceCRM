@@ -50,6 +50,8 @@
     outline: none;
     font-size: 0.95rem;
     font-family: inherit;
+    background-color: var(--bg-card);
+    color: var(--text-main);
 }
 
 .searchInput:focus {
@@ -86,7 +88,7 @@
 .tableHead {
     text-align: left;
     border-bottom: 1px solid var(--border);
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: var(--bg-main);
 }
 
 .th {
@@ -107,7 +109,7 @@
 }
 
 .tr:hover {
-    background-color: rgba(0, 0, 0, 0.01);
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .td {
@@ -190,7 +192,7 @@
 .typeToggle {
     display: flex;
     gap: 8px;
-    background-color: #f1f5f9;
+    background-color: var(--bg-main);
     padding: 4px;
     border-radius: 8px;
 }
@@ -208,9 +210,9 @@
 }
 
 .typeBtnActive {
-    background-color: white;
+    background-color: var(--bg-card);
     font-weight: 700;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow);
 }
 
 .twoCol {
@@ -230,6 +232,8 @@
     padding: 12px 16px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
+    background-color: var(--bg-card);
+    color: var(--text-main);
     min-height: 100px;
     font-family: inherit;
     outline: none;

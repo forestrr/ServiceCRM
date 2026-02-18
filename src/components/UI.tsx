@@ -16,7 +16,8 @@ export const Button = ({
     disabled = false,
     icon: Icon,
     style = {},
-    title
+    title,
+    type = 'button'
 }: {
     children?: React.ReactNode,
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost',
@@ -25,7 +26,8 @@ export const Button = ({
     disabled?: boolean,
     icon?: any,
     style?: React.CSSProperties,
-    title?: string
+    title?: string,
+    type?: 'button' | 'submit' | 'reset'
 }) => {
     const variantClass = {
         primary: styles.btnPrimary,
@@ -39,6 +41,7 @@ export const Button = ({
             onClick={onClick}
             disabled={disabled}
             title={title}
+            type={type}
             className={`${styles.btn} ${variantClass} ${className}`}
             style={style}
         >

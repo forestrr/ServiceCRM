@@ -6,8 +6,8 @@
 .trigger {
     padding: 16px 20px;
     border-radius: 16px;
-    border: 2px solid #f1f5f9;
-    background-color: #f8fafc;
+    border: 2px solid var(--border);
+    background-color: var(--bg-main);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -16,7 +16,7 @@
 }
 
 .triggerOpen {
-    border-color: #7c3aed;
+    border-color: var(--primary);
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
 }
 
@@ -30,16 +30,16 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #e2e8f0;
+    background-color: var(--bg-main);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 .triggerAvatarActive {
-    background-color: #ede9fe;
-    color: #7c3aed;
+    background-color: var(--primary-light);
+    color: var(--primary);
 }
 
 .triggerText {
@@ -49,7 +49,7 @@
 }
 
 .triggerTextActive {
-    color: #1e293b;
+    color: var(--text-main);
 }
 
 .chevron {
@@ -68,10 +68,10 @@
     left: 0;
     right: 0;
     margin-top: 10px;
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
     z-index: 100;
     overflow: hidden;
 }
@@ -79,7 +79,7 @@
 /* Search */
 .searchBox {
     padding: 12px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border);
 }
 
 .searchInputWrapper {
@@ -98,8 +98,8 @@
     width: 100%;
     padding: 10px 10px 10px 36px;
     border-radius: 10px;
-    border: 1px solid #f1f5f9;
-    background-color: #f8fafc;
+    border: 1px solid var(--border);
+    background-color: var(--bg-main);
     font-size: 0.9rem;
     outline: none;
     font-weight: 600;
@@ -146,11 +146,11 @@
 }
 
 .option:hover {
-    background-color: #f8fafc;
+    background-color: var(--bg-main);
 }
 
 .optionSelected {
-    background-color: #f5f3ff;
+    background-color: var(--primary-light);
 }
 
 .optionSelected:hover {
@@ -161,7 +161,7 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background-color: #f1f5f9;
+    background-color: var(--bg-main);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -169,7 +169,7 @@
 
 .optionName {
     font-weight: 600;
-    color: #4b5563;
+    color: var(--text-main);
 }
 
 .optionCheck {

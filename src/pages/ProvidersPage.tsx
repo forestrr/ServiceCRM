@@ -11,6 +11,7 @@ import {
 
 import { Button, Card, Input, Modal } from '../components/UI';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './ProvidersPage.module.css';
 
 interface ServiceProvider {
@@ -38,6 +39,7 @@ interface AssignedStep {
 }
 
 export const ProvidersPage = () => {
+    const { user } = useAuth();
     const [providers, setProviders] = useState<ServiceProvider[]>([]);
     const [activeProviderId, setActiveProviderId] = useState<string | null>(null);
     const [assignedSteps, setAssignedSteps] = useState<AssignedStep[]>([]);
@@ -145,7 +147,8 @@ export const ProvidersPage = () => {
                 name: newName,
                 email: newEmail,
                 phone: newPhone,
-                specialty: newSpecialty
+                specialty: newSpecialty,
+                user_id: user?.id
             }]);
 
             if (error) throw error;
@@ -204,12 +207,13 @@ export const ProvidersPage = () => {
                                         <p className={styles.providerItemName}>{p.name}</p>
                                         <p className={styles.providerItemSpecialty}>{p.specialty || 'General'}</p>
                                     </div>
-                                    <button
+                                    <Button
+                                        variant="ghost"
                                         onClick={(e) => { e.stopPropagation(); deleteProvider(p.id); }}
-                                        className={styles.deleteBtn}
+                                        style={{ padding: '8px', color: 'var(--text-muted)' }}
                                     >
                                         <Trash2 size={16} />
-                                    </button>
+                                    </Button>
                                 </div>
                             ))}
                         </div>

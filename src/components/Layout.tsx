@@ -7,12 +7,17 @@ import {
     ClipboardList,
     Bell,
     CheckCircle2,
-    Truck
+    Truck,
+    LogOut,
+    User
 } from 'lucide-react';
 import styles from './Layout.module.css';
+import { useAuth } from '../contexts/AuthContext';
+import { ThemeToggle } from './ThemeToggle';
 
 const Sidebar = () => {
     const location = useLocation();
+    const { user, profile, signOut } = useAuth();
 
     const menuItems = [
         { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/' },
@@ -21,6 +26,13 @@ const Sidebar = () => {
         { icon: <Truck size={20} />, label: 'Service Providers', path: '/providers' },
         { icon: <Settings size={20} />, label: 'Service Settings', path: '/settings' },
     ];
+
+    const getInitials = () => {
+        if (profile?.full_name) {
+            return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+        return user?.email?.[0].toUpperCase() || 'U';
+    };
 
     return (
         <div className={styles.sidebar}>
@@ -48,9 +60,33 @@ const Sidebar = () => {
             </nav>
 
             <div className={styles.footer}>
+                <div className={styles.themeToggleWrapper}>
+                    <ThemeToggle />
+                </div>
+
+                <div className={styles.userInfo}>
+                    <div className={styles.userAvatar}>
+                        {getInitials()}
+                    </div>
+                    <div className={styles.userDetails}>
+                        <span className={styles.userName}>{profile?.full_name || 'Account'}</span>
+                        <span className={styles.userEmail}>{user?.email}</span>
+                    </div>
+                </div>
+
+                <Link to="/profile" className={styles.profileBtn} title="My Profile">
+                    <User size={20} />
+                    <span className={styles.navLabel}>My Profile</span>
+                </Link>
+
                 <div className={styles.notificationBtn}>
                     <Bell size={20} />
                     <span className={styles.navLabel}>Notifications</span>
+                </div>
+
+                <div className={styles.logoutBtn} onClick={() => signOut()} title="Sign Out">
+                    <LogOut size={20} />
+                    <span className={styles.navLabel}>Logout</span>
                 </div>
             </div>
         </div>
