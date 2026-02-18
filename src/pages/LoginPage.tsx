@@ -70,7 +70,7 @@ export const LoginPage = () => {
                         <CheckCircle2 size={32} color="white" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className={styles.logoTitle}>Antigravity</h1>
+                        <h1 className={styles.logoTitle}>Trust Flow</h1>
                         <p className={styles.logoSubtitle}>Service CRM & Workflow</p>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ export const LoginPage = () => {
             </motion.div>
 
             <div className={styles.footer}>
-                © 2026 Antigravity Systems. Standard Security Protocols Active.
+                © 2026 Trust Flow Systems. Standard Security Protocols Active.
             </div>
         </div>
     );

@@ -40,7 +40,7 @@ const Sidebar = () => {
                 <div className={styles.logoIcon}>
                     <CheckCircle2 size={20} color="white" />
                 </div>
-                <h2 className={styles.logoText}>Service CRM</h2>
+                <h2 className={styles.logoText}>Trust Flow</h2>
             </div>
 
             <nav className={styles.nav}>
