@@ -31,15 +31,17 @@ export const SettingsPage = () => {
     const [newDescription, setNewDescription] = useState('');
 
     useEffect(() => {
-        fetchTemplates();
-    }, []);
+        if (user) fetchTemplates();
+    }, [user]);
 
     const fetchTemplates = async () => {
+        if (!user) return;
         setLoading(true);
         try {
             const { data, error } = await supabase
                 .from('service_templates')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -82,7 +84,7 @@ export const SettingsPage = () => {
     };
 
     const saveTemplate = async () => {
-        if (!activeTemplate) return;
+        if (!activeTemplate || !user) return;
         setSaving(true);
         try {
             const { error } = await supabase
@@ -92,7 +94,8 @@ export const SettingsPage = () => {
                     description: activeTemplate.description,
                     default_steps: activeTemplate.default_steps
                 })
-                .eq('id', activeTemplate.id);
+                .eq('id', activeTemplate.id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
             alert('Template saved successfully!');
@@ -126,9 +129,13 @@ export const SettingsPage = () => {
     };
 
     const deleteTemplate = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this template?')) return;
+        if (!confirm('Are you sure you want to delete this template?') || !user) return;
         try {
-            const { error } = await supabase.from('service_templates').delete().eq('id', id);
+            const { error } = await supabase
+                .from('service_templates')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', user.id);
             if (error) throw error;
             if (activeTemplateId === id) setActiveTemplateId(null);
             fetchTemplates();

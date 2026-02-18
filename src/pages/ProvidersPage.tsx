@@ -55,8 +55,8 @@ export const ProvidersPage = () => {
     const [newSpecialty, setNewSpecialty] = useState('');
 
     useEffect(() => {
-        fetchProviders();
-    }, []);
+        if (user) fetchProviders();
+    }, [user]);
 
     useEffect(() => {
         if (activeProviderId) {
@@ -67,11 +67,13 @@ export const ProvidersPage = () => {
     }, [activeProviderId]);
 
     const fetchProviders = async () => {
+        if (!user) return;
         setLoading(true);
         try {
             const { data, error } = await supabase
                 .from('service_providers')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('name');
             if (error) throw error;
             setProviders(data || []);
@@ -116,7 +118,7 @@ export const ProvidersPage = () => {
     };
 
     const saveProvider = async () => {
-        if (!activeProvider) return;
+        if (!activeProvider || !user) return;
         setSaving(true);
         try {
             const { error } = await supabase
@@ -128,7 +130,8 @@ export const ProvidersPage = () => {
                     specialty: activeProvider.specialty,
                     rating: activeProvider.rating
                 })
-                .eq('id', activeProvider.id);
+                .eq('id', activeProvider.id)
+                .eq('user_id', user.id);
 
             if (error) throw error;
             alert('Provider details saved!');
@@ -165,9 +168,13 @@ export const ProvidersPage = () => {
     };
 
     const deleteProvider = async (id: string) => {
-        if (!confirm('Are you sure? This will unassign all their steps.')) return;
+        if (!confirm('Are you sure? This will unassign all their steps.') || !user) return;
         try {
-            const { error } = await supabase.from('service_providers').delete().eq('id', id);
+            const { error } = await supabase
+                .from('service_providers')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', user.id);
             if (error) throw error;
             if (activeProviderId === id) setActiveProviderId(null);
             fetchProviders();

@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Card } from '../components/UI';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './Dashboard.module.css';
 
 const KPICard = ({ icon: Icon, label, value, color, loading, index, details }: { icon: any, label: string, value: string | number, color: string, loading: boolean, index: number, details?: { primary: string, secondary: string }[] }) => {
@@ -113,6 +114,7 @@ interface Milestone {
 
 export const Dashboard = () => {
     const navigate = useNavigate();
+    const { user: currentUser } = useAuth();
     const [stats, setStats] = useState({
         totalCustomers: 0,
         activeApps: 0,
@@ -131,33 +133,43 @@ export const Dashboard = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchStats();
-    }, []);
+        if (currentUser) fetchStats();
+    }, [currentUser]);
 
     const fetchStats = async () => {
+        if (!currentUser) return;
         setLoading(true);
         try {
             const now = new Date();
             const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
             const queryPromises = [
-                supabase.from('customers').select('*', { count: 'exact', head: true }),
+                supabase.from('customers').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id),
                 supabase.from('applications')
                     .select('id, service_template:service_templates(name), customer:customers(name)', { count: 'exact' })
+                    .eq('user_id', currentUser.id)
                     .eq('status', 'Active')
                     .limit(5),
-                supabase.from('application_steps').select('*', { count: 'exact', head: true }).eq('is_completed', false),
+                supabase.from('application_steps')
+                    .select('*, application:applications!inner(user_id)', { count: 'exact', head: true })
+                    .eq('application.user_id', currentUser.id)
+                    .eq('is_completed', false),
                 supabase.from('documents')
-                    .select('id, name, expiry_date, customer:customers(name)')
+                    .select('id, name, expiry_date, customer:customers!inner(name, user_id)')
+                    .eq('customer.user_id', currentUser.id)
                     .lte('expiry_date', thirtyDaysFromNow)
                     .gt('expiry_date', now.toISOString()),
                 supabase.from('application_steps')
-                    .select('id, label, expiry_date, application:applications(customer:customers(name))')
+                    .select('id, label, expiry_date, application:applications!inner(customer:customers!inner(name, user_id))')
+                    .eq('application.customer.user_id', currentUser.id)
                     .lte('expiry_date', thirtyDaysFromNow)
                     .gt('expiry_date', now.toISOString())
                     .eq('is_completed', false),
-                supabase.from('service_providers').select('id, rating'),
-                supabase.from('application_steps').select('*').eq('is_outsource', true)
+                supabase.from('service_providers').select('id, rating').eq('user_id', currentUser.id),
+                supabase.from('application_steps')
+                    .select('*, application:applications!inner(user_id)')
+                    .eq('application.user_id', currentUser.id)
+                    .eq('is_outsource', true)
             ];
 
             const results = await Promise.all(queryPromises);

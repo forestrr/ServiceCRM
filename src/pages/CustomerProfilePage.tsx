@@ -18,6 +18,7 @@ import { Button, Card, Modal, Input } from '../components/UI';
 import { Badge } from '../components/Badge';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './CustomerProfilePage.module.css';
 
 interface Document {
@@ -48,6 +49,7 @@ interface Customer {
 }
 
 export const CustomerProfilePage = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -65,16 +67,18 @@ export const CustomerProfilePage = () => {
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-        if (id) fetchCustomerData();
-    }, [id]);
+        if (id && user) fetchCustomerData();
+    }, [id, user]);
 
     const fetchCustomerData = async () => {
+        if (!user || !id) return;
         setLoading(true);
         try {
             const { data: cust, error: custErr } = await supabase
                 .from('customers')
                 .select('*')
                 .eq('id', id)
+                .eq('user_id', user.id)
                 .single();
 
             if (custErr) throw custErr;
@@ -83,15 +87,17 @@ export const CustomerProfilePage = () => {
             const { data: apps, error: appsErr } = await supabase
                 .from('applications')
                 .select('*, service_template:service_templates(name)')
-                .eq('customer_id', id);
+                .eq('customer_id', id)
+                .eq('user_id', user.id);
 
             if (appsErr) throw appsErr;
             setApplications(apps || []);
 
             const { data: docs, error: docsErr } = await supabase
                 .from('documents')
-                .select('*')
+                .select('*, customer:customers!inner(user_id)')
                 .eq('customer_id', id)
+                .eq('customer.user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (docsErr) throw docsErr;
@@ -146,10 +152,16 @@ export const CustomerProfilePage = () => {
     };
 
     const deleteDocument = async (docId: string, filePath: string) => {
-        if (!confirm('Are you sure you want to delete this document?')) return;
+        if (!confirm('Are you sure you want to delete this document?') || !user) return;
         try {
+            // RLS will block unauthorized storage removals, but we add a check here as well
             await supabase.storage.from('documents').remove([filePath]);
-            const { error } = await supabase.from('documents').delete().eq('id', docId);
+            const { error } = await supabase
+                .from('documents')
+                .delete()
+                .eq('id', docId)
+                .match({ 'customer_id': id }); // ID from params already checked for ownership in fetch
+
             if (error) throw error;
             fetchCustomerData();
         } catch (err) {

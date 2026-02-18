@@ -40,15 +40,17 @@ export const CustomersPage = () => {
     });
 
     useEffect(() => {
-        fetchCustomers();
-    }, []);
+        if (user) fetchCustomers();
+    }, [user]);
 
     const fetchCustomers = async () => {
         setLoading(true);
         try {
+            if (!user) return;
             const { data, error } = await supabase
                 .from('customers')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;

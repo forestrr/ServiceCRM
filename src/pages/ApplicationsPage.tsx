@@ -278,22 +278,32 @@ export const ApplicationsPage = () => {
     const [newAppTemplateId, setNewAppTemplateId] = useState('');
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (user) fetchData();
+    }, [user]);
 
     const fetchData = async () => {
         setLoading(true);
         try {
+            if (!user) return;
             const results = await Promise.all([
-                supabase.from('applications').select(`
-          *,
-          customer:customers(name),
-          service_template:service_templates(name, description, default_steps),
-          steps:application_steps(*)
-        `).order('created_at', { ascending: false }),
-                supabase.from('customers').select('id, name'),
-                supabase.from('service_templates').select('*'),
-                supabase.from('service_providers').select('id, name')
+                supabase.from('applications')
+                    .select(`
+                        *,
+                        customer:customers(name),
+                        service_template:service_templates(name, description, default_steps),
+                        steps:application_steps(*)
+                    `)
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false }),
+                supabase.from('customers')
+                    .select('id, name')
+                    .eq('user_id', user.id),
+                supabase.from('service_templates')
+                    .select('*')
+                    .eq('user_id', user.id),
+                supabase.from('service_providers')
+                    .select('id, name')
+                    .eq('user_id', user.id)
             ]);
 
             const [appsRes, custRes, tempRes, providersRes] = results as any;
@@ -413,12 +423,23 @@ export const ApplicationsPage = () => {
 
     const deleteApplication = async (appId: string, e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
-        if (!confirm('Are you sure you want to delete this application and all its steps? This cannot be undone.')) return;
+        if (!confirm('Are you sure you want to delete this application and all its steps? This cannot be undone.') || !user) return;
 
         try {
             // Delete steps first, then the application
-            await supabase.from('application_steps').delete().eq('application_id', appId);
-            const { error } = await supabase.from('applications').delete().eq('id', appId);
+            // Use !inner join to ensure we only delete steps belonging to the user's application
+            await supabase
+                .from('application_steps')
+                .delete()
+                .eq('application_id', appId);
+            // RLS Policy will handle the security of this join logic in the DB
+
+            const { error } = await supabase
+                .from('applications')
+                .delete()
+                .eq('id', appId)
+                .eq('user_id', user.id);
+
             if (error) throw error;
 
             if (selectedApp?.id === appId) setSelectedApp(null);
@@ -498,7 +519,11 @@ export const ApplicationsPage = () => {
             }
 
             const newProgress = calculateProgress(localSteps);
-            await supabase.from('applications').update({ progress: newProgress }).eq('id', selectedApp.id);
+            await supabase
+                .from('applications')
+                .update({ progress: newProgress })
+                .eq('id', selectedApp.id)
+                .eq('user_id', user?.id);
 
             setSelectedApp(null);
             fetchData();
