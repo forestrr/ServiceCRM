@@ -101,7 +101,7 @@ export const CustomerPortal = () => {
                         <div className={styles.brandIcon}>
                             <CheckCircle2 size={24} />
                         </div>
-                        <span className={styles.brandName}>Service CRM</span>
+                        <span className={styles.brandName}>Trust Flow</span>
                     </div>
                     <h1 className={styles.welcomeText}>Hello, {customer.name}</h1>
                     <p className={styles.welcomeSubtext}>Track your real-time service progress below.</p>

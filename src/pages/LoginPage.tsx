@@ -71,7 +71,7 @@ export const LoginPage = () => {
                     </div>
                     <div>
                         <h1 className={styles.logoTitle}>Trust Flow</h1>
-                        <p className={styles.logoSubtitle}>Service CRM & Workflow</p>
+                        <p className={styles.logoSubtitle}>Trust Flow & Workflow</p>
                     </div>
                 </div>
 
