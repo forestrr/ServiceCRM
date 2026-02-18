@@ -1,0 +1,2 @@
+https://service-crm-gules.vercel.app/aikido.txt
+validation.aikido.6eb91bf440db821958737738e3fa56b0
