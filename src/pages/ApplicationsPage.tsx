@@ -17,6 +17,7 @@ import {
     Columns
 } from 'lucide-react';
 import { Button, Modal } from '../components/UI';
+import { Badge } from '../components/Badge';
 import { PremiumCheckmark } from '../components/PremiumCheckmark';
 import { CustomerDropdown } from '../components/CustomerDropdown';
 import { ProviderDropdown } from '../components/ProviderDropdown';
@@ -356,9 +357,11 @@ export const ApplicationsPage = () => {
                     .eq('user_id', user.id),
                 supabase.from('staff')
                     .select('id, full_name')
-                    .eq('is_active', true),
+                    .eq('is_active', true)
+                    .eq('user_id', user.id),
                 supabase.from('accounts')
                     .select('id, name, current_balance')
+                    .eq('user_id', user.id)
             ]);
 
             const [appsRes, custRes, tempRes, providersRes, staffRes, accountsRes] = results as any;
@@ -528,17 +531,10 @@ export const ApplicationsPage = () => {
     };
 
     const saveChanges = async () => {
-        if (!selectedApp) return;
+        if (!selectedApp || !user) return;
         setSaving(true);
         try {
-            const originalStepIds = selectedApp.steps.map(s => s.id);
-            const localStepIds = localSteps.map(s => s.id);
-            const removedIds = originalStepIds.filter(id => !localStepIds.includes(id));
-
-            if (removedIds.length > 0) {
-                await supabase.from('application_steps').delete().in('id', removedIds);
-            }
-
+            // 1. Sync Application Steps
             const upsertData = [...localSteps]
                 .sort((a, b) => a.position - b.position)
                 .map((s, idx) => {
@@ -553,16 +549,23 @@ export const ApplicationsPage = () => {
                         position: idx,
                         provider_id: s.provider_id || null
                     };
-                    // Only include 'id' for existing steps. New steps will be inserted without an 'id'.
                     if (!s.id.startsWith('temp-')) {
                         data.id = s.id;
                     }
                     return data;
                 });
 
-            // Separate new steps from existing steps for upsert
-            const newSteps = upsertData.filter(s => !s.id);
+            // Deletions first
+            const originalStepIds = selectedApp.steps.map(s => s.id);
+            const localStepIds = localSteps.map(s => s.id);
+            const removedIds = originalStepIds.filter(id => !localStepIds.includes(id));
+            if (removedIds.length > 0) {
+                const { error: delErr } = await supabase.from('application_steps').delete().in('id', removedIds);
+                if (delErr) throw delErr;
+            }
+
             const existingSteps = upsertData.filter(s => s.id);
+            const newSteps = upsertData.filter(s => !s.id);
 
             if (existingSteps.length > 0) {
                 const { error: updateErr } = await supabase
@@ -570,7 +573,6 @@ export const ApplicationsPage = () => {
                     .upsert(existingSteps, { onConflict: 'id' });
                 if (updateErr) throw updateErr;
             }
-
             if (newSteps.length > 0) {
                 const { error: insertErr } = await supabase
                     .from('application_steps')
@@ -583,32 +585,36 @@ export const ApplicationsPage = () => {
                 .from('applications')
                 .update({
                     progress: newProgress,
-                    status: selectedApp.status, // Ensure status is preserved or updated
+                    status: selectedApp.status,
                     description: selectedApp.description || null
                 })
-                .eq('id', selectedApp.id)
-                .eq('user_id', user?.id);
+                .eq('id', selectedApp.id);
 
             if (appUpdateErr) throw appUpdateErr;
 
             // --- AUTO INVOICE LOGIC ---
-            const { data: existingInvoice } = await supabase
+            const { data: existingInvoice, error: checkInvErr } = await supabase
                 .from('invoices')
-                .select('*')
+                .select('id, status')
                 .eq('application_id', selectedApp.id)
                 .maybeSingle();
 
+            if (checkInvErr) throw checkInvErr;
+
             if (existingInvoice) {
+                // If it's already 100%, ensure invoice is posted (unpaid)
                 if (newProgress === 100 && existingInvoice.status === 'draft') {
-                    await supabase
+                    const { error: postErr } = await supabase
                         .from('invoices')
                         .update({
                             status: 'unpaid',
                             due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
                         })
                         .eq('id', existingInvoice.id);
+                    if (postErr) throw postErr;
                 }
             } else if (selectedApp.customer_id) {
+                // Generate new Invoice
                 let invoiceItems: any[] = [];
                 let subtotal = 0;
 
@@ -617,7 +623,7 @@ export const ApplicationsPage = () => {
                     if (qItems && qItems.length > 0) {
                         invoiceItems = qItems.map(qi => ({ description: qi.description, quantity: qi.quantity, unit_price: qi.unit_price, total: qi.total }));
                         const { data: qV } = await supabase.from('quotations').select('subtotal').eq('id', selectedApp.quotation_id).maybeSingle();
-                        if (qV) subtotal = qV.subtotal;
+                        if (qV) subtotal += qV.subtotal;
                     }
                 } else if (selectedApp.service_template_id) {
                     const { data: stV } = await supabase.from('service_templates').select('*').eq('id', selectedApp.service_template_id).maybeSingle();
@@ -657,55 +663,33 @@ export const ApplicationsPage = () => {
                     .select()
                     .maybeSingle();
 
-                if (invErr) {
-                    console.error('Invoice Error:', invErr);
-                } else if (inv) {
-                    await supabase.from('invoice_items').insert(invoiceItems.map(ii => ({ ...ii, invoice_id: inv.id })));
+                if (invErr) throw invErr;
+                if (inv) {
+                    const { error: itemsErr } = await supabase.from('invoice_items').insert(invoiceItems.map(ii => ({ ...ii, invoice_id: inv.id })));
+                    if (itemsErr) throw itemsErr;
                 }
             }
-            // ---------------------------
 
-            // --- WORKFLOW 1: AUTO-QUOTATION LOGIC ---
+            // --- AUTO-QUOTATION LOGIC ---
             if (selectedApp.status === 'Proposed' && !selectedApp.quotation_id) {
-                // Generate Quotation from Service Pricing
-                const { data: st } = await supabase
-                    .from('service_templates')
-                    .select('*')
-                    .eq('id', selectedApp.service_template_id)
-                    .single();
-
+                const { data: st } = await supabase.from('service_templates').select('*').eq('id', selectedApp.service_template_id).single();
                 if (st) {
                     const quoteItems = [];
-                    let subtotal = 0;
-
-                    // 1. Base Charge
+                    let qSubtotal = 0;
                     if (st.base_charge > 0) {
-                        quoteItems.push({
-                            description: `${st.name}: Base Service Fee`,
-                            quantity: 1,
-                            unit_price: st.base_charge,
-                            total: st.base_charge
-                        });
-                        subtotal += st.base_charge;
+                        quoteItems.push({ description: `${st.name}: Base Service Fee`, quantity: 1, unit_price: st.base_charge, total: st.base_charge });
+                        qSubtotal += st.base_charge;
                     }
-
-                    // 2. Step Charges
                     if (st.default_steps && Array.isArray(st.default_steps)) {
                         st.default_steps.forEach((s: any) => {
                             if (s.charge > 0) {
-                                quoteItems.push({
-                                    description: `Phase: ${s.label}`,
-                                    quantity: 1,
-                                    unit_price: s.charge,
-                                    total: s.charge
-                                });
-                                subtotal += s.charge;
+                                quoteItems.push({ description: `Phase: ${s.label}`, quantity: 1, unit_price: s.charge, total: s.charge });
+                                qSubtotal += s.charge;
                             }
                         });
                     }
-
-                    const vat = subtotal * 0.05;
-                    const total = subtotal + vat;
+                    const qVat = qSubtotal * 0.05;
+                    const qTotal = qSubtotal + qVat;
 
                     const { data: q, error: qErr } = await supabase
                         .from('quotations')
@@ -713,27 +697,17 @@ export const ApplicationsPage = () => {
                             customer_id: selectedApp.customer_id,
                             service_template_id: selectedApp.service_template_id,
                             status: 'draft',
-                            subtotal,
-                            vat,
-                            total,
+                            subtotal: qSubtotal, vat: qVat, total: qTotal,
                             valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
                         }])
-                        .select()
-                        .single();
-
-                    if (q && !qErr) {
-                        const itemsWithQId = quoteItems.map(qi => ({ ...qi, quotation_id: q.id }));
-                        await supabase.from('quotation_items').insert(itemsWithQId);
-
-                        // Link back to application
-                        await supabase
-                            .from('applications')
-                            .update({ quotation_id: q.id })
-                            .eq('id', selectedApp.id);
+                        .select().single();
+                    if (qErr) throw qErr;
+                    if (q) {
+                        await supabase.from('quotation_items').insert(quoteItems.map(qi => ({ ...qi, quotation_id: q.id })));
+                        await supabase.from('applications').update({ quotation_id: q.id }).eq('id', selectedApp.id);
                     }
                 }
             }
-            // ---------------------------
 
             setSelectedApp(null);
             fetchData();
@@ -872,8 +846,19 @@ export const ApplicationsPage = () => {
                     {filteredApps.map(app => (
                         <div key={app.id} className={styles.appCard} onClick={() => openWorkflow(app)}>
                             <div className={styles.cardHeader}>
-                                <span className={styles.appId}>#{app.id.split('-')[0].toUpperCase()}</span>
-                                <span className={styles.appDate}>{new Date(app.created_at).toLocaleDateString()}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <div>
+                                        <span className={styles.appId}>#{app.id.split('-')[0].toUpperCase()}</span>
+                                        <span className={styles.appDate}>{new Date(app.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                    <Badge variant={
+                                        app.status === 'Completed' ? 'success' :
+                                            app.status === 'Active' ? 'info' :
+                                                app.status === 'Proposed' ? 'warning' : 'neutral'
+                                    }>
+                                        {app.status}
+                                    </Badge>
+                                </div>
                             </div>
                             <div className={styles.cardBody}>
                                 <h3 className={styles.appServiceName}>{app.service_template?.name}</h3>
@@ -961,7 +946,16 @@ export const ApplicationsPage = () => {
                                             onClick={() => openWorkflow(app)}
                                         >
                                             <div className={styles.kanbanCardHeader}>
-                                                <span className={styles.appId}>#{app.id.split('-')[0].toUpperCase()}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span className={styles.appId}>#{app.id.split('-')[0].toUpperCase()}</span>
+                                                    <Badge variant={
+                                                        app.status === 'Completed' ? 'success' :
+                                                            app.status === 'Active' ? 'info' :
+                                                                app.status === 'Proposed' ? 'warning' : 'neutral'
+                                                    } style={{ fontSize: '0.65rem', padding: '2px 6px' }}>
+                                                        {app.status}
+                                                    </Badge>
+                                                </div>
                                                 <span className={`${styles.kanbanProgress} ${app.progress === 100 ? styles.kanbanProgressDone : ''}`}>{app.progress}%</span>
                                             </div>
                                             <h4 className={styles.kanbanAppTitle}>{app.service_template?.name}</h4>
@@ -1008,6 +1002,13 @@ export const ApplicationsPage = () => {
                                 <div className={styles.appDescRow}>
                                     <span className={styles.appId}>#{app.id.split('-')[0].toUpperCase()}</span>
                                     <span className={styles.appDate}>{new Date(app.created_at).toLocaleDateString()}</span>
+                                    <Badge variant={
+                                        app.status === 'Completed' ? 'success' :
+                                            app.status === 'Active' ? 'info' :
+                                                app.status === 'Proposed' ? 'warning' : 'neutral'
+                                    } style={{ marginLeft: '8px' }}>
+                                        {app.status}
+                                    </Badge>
                                 </div>
                                 <h3 className={styles.appServiceName}>{app.service_template?.name}</h3>
                                 {app.service_template?.description && <p className={styles.listTemplateDesc}>{app.service_template.description}</p>}

@@ -36,6 +36,8 @@ export const AccountsPage = () => {
             const { data, error } = await supabase
                 .from('accounts')
                 .select('*')
+                // Requires user to run the migration adding user_id to accounts
+                .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
                 .order('created_at', { ascending: true });
 
             if (error) throw error;

@@ -3,6 +3,8 @@ import { FileText, Loader2, Printer, Send, CreditCard } from 'lucide-react';
 import { Button, Card, Modal, Input } from '../../components/UI';
 import { Badge } from '../../components/Badge';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { exportToPDF } from '../../utils/pdfExport';
 import styles from './InvoicesPage.module.css';
 
 interface InvoiceItem {
@@ -27,12 +29,14 @@ interface Invoice {
 }
 
 export const InvoicesPage = () => {
+    const { user } = useAuth();
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [accounts, setAccounts] = useState<any[]>([]);
+    const [profile, setProfile] = useState<any>(null);
     const [paymentData, setPaymentData] = useState({
         amount: 0,
         account_id: '',
@@ -40,11 +44,14 @@ export const InvoicesPage = () => {
     });
 
     useEffect(() => {
-        fetchInvoices();
-        fetchAccounts();
-    }, []);
+        if (user) {
+            fetchInvoices();
+            fetchAccounts();
+        }
+    }, [user]);
 
     const fetchInvoices = async () => {
+        if (!user) return;
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -53,6 +60,8 @@ export const InvoicesPage = () => {
                     *,
                     customers (name, trn)
                 `)
+                // Invoices don't have user_id, they link to customers which have user_id
+                .filter('customers.user_id', 'eq', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -70,6 +79,14 @@ export const InvoicesPage = () => {
             }));
 
             setInvoices(mapped);
+
+            // Fetch Profile for company info
+            const { data: profData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+            if (profData) setProfile(profData);
         } catch (err) {
             console.error('Error fetching invoices:', err);
         } finally {
@@ -78,7 +95,11 @@ export const InvoicesPage = () => {
     };
 
     const fetchAccounts = async () => {
-        const { data } = await supabase.from('accounts').select('id, name');
+        if (!user) return;
+        const { data } = await supabase
+            .from('accounts')
+            .select('id, name')
+            .eq('user_id', user.id);
         if (data) setAccounts(data);
     };
 
@@ -98,7 +119,9 @@ export const InvoicesPage = () => {
     };
 
     const handlePrint = () => {
-        window.print();
+        if (selectedInvoice) {
+            window.print();
+        }
     };
 
     const handleRecordPayment = async () => {
@@ -208,83 +231,153 @@ export const InvoicesPage = () => {
                 )}
             </Card>
 
-            {/* View/Print Modal */}
+            {/* --- Precision Invoice Preview Modal --- */}
             <Modal
                 isOpen={!!selectedInvoice && !showPaymentModal}
                 onClose={() => setSelectedInvoice(null)}
                 title="Invoice Preview"
-                maxWidth="900px"
+                maxWidth="950px"
             >
                 {selectedInvoice && (
                     <div className={styles.previewContainer}>
-                        <div className={styles.invoiceA4}>
+                        <div className={styles.invoiceA4} id="invoice-capture">
+                            {/* Header: Logo Left, Title Right */}
                             <div className={styles.invoiceHeader}>
-                                <div className={styles.companyInfo}>
-                                    <h2>SERVICE CRM ERP</h2>
-                                    <p>Business Bay, Dubai, UAE</p>
-                                    <p>TRN: 100234567890003</p>
+                                <div className={styles.logoInfoArea}>
+                                    <div className={styles.logoArea}>
+                                        <div className={styles.companyLogo}>
+                                            <FileText size={24} />
+                                        </div>
+                                        <span className={styles.companyName}>{profile?.company_name || 'NAINA GEN TRADING'}</span>
+                                    </div>
+                                    <div className={styles.companyDetails}>
+                                        <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '4px' }}>{profile?.company_name || 'Naina General trading LLC.'}</p>
+                                        <p>{profile?.company_address || 'Ajman, U.A.E'}</p>
+                                        <p>TRN: {profile?.company_trn || '100223182100003'}</p>
+                                        <p>D-U-N-S: 123456789</p>
+                                    </div>
                                 </div>
-                                <div className={styles.invoiceMeta}>
-                                    <h1>INVOICE</h1>
-                                    <p><strong># {selectedInvoice.id.split('-')[0]}</strong></p>
-                                    <p>Date: {new Date(selectedInvoice.created_at).toLocaleDateString()}</p>
-                                    <p>Due: {new Date(selectedInvoice.due_date).toLocaleDateString()}</p>
+                                <div className={styles.invoiceTitleArea}>
+                                    <h1 className={styles.invoiceTitle}>Invoice</h1>
+                                    <div className={styles.invoiceId}># INV-{selectedInvoice.id.split('-')[0].toUpperCase()}</div>
                                 </div>
                             </div>
 
-                            <div className={styles.billTo}>
-                                <div className={styles.billToTitle}>Bill To:</div>
-                                <h3 className={styles.clientName}>{selectedInvoice.customer_name}</h3>
-                                {selectedInvoice.customer_trn && <p>TRN: {selectedInvoice.customer_trn}</p>}
+                            {/* Split Meta: Bill To Left, Dates Right */}
+                            <div className={styles.metaGrid}>
+                                <div>
+                                    <div className={styles.metaLabel}>Bill To</div>
+                                    <div className={styles.billToValue}>{selectedInvoice.customer_name}</div>
+                                    <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>
+                                        Dubai, UAE
+                                    </div>
+                                    {selectedInvoice.customer_trn && (
+                                        <div style={{ fontSize: '0.85rem', marginTop: '2px' }}>TRN: {selectedInvoice.customer_trn}</div>
+                                    )}
+                                </div>
+                                <div className={styles.metaDetailsGrid}>
+                                    <div className={styles.metaDetailLabel}>Invoice Date :</div>
+                                    <div className={styles.metaDetailValue}>{new Date(selectedInvoice.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                                    <div className={styles.metaDetailLabel}>Due Date :</div>
+                                    <div className={styles.metaDetailValue}>{new Date(selectedInvoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                                    <div className={styles.metaDetailLabel}>Reference :</div>
+                                    <div className={styles.metaDetailValue}>INV-{selectedInvoice.id.split('-')[0].toUpperCase()}</div>
+                                </div>
                             </div>
 
+                            {/* Teal Stylized Table */}
                             <table className={styles.itemsTable}>
                                 <thead>
                                     <tr>
-                                        <th>Description</th>
-                                        <th style={{ textAlign: 'center' }}>Qty</th>
-                                        <th style={{ textAlign: 'right' }}>Unit Price</th>
-                                        <th style={{ textAlign: 'right' }}>Total</th>
+                                        <th style={{ width: '40px', textAlign: 'center' }}>#</th>
+                                        <th>Item & Description</th>
+                                        <th style={{ width: '60px', textAlign: 'center' }}>Qty</th>
+                                        <th style={{ width: '100px', textAlign: 'right' }}>Rate</th>
+                                        <th style={{ width: '100px', textAlign: 'right' }}>Taxable Amount</th>
+                                        <th style={{ width: '80px', textAlign: 'right' }}>Tax</th>
+                                        <th style={{ width: '110px', textAlign: 'right' }}>Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {selectedInvoice.items?.map((item, idx) => (
                                         <tr key={idx}>
-                                            <td>{item.description}</td>
-                                            <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                                            <td style={{ textAlign: 'right' }}>{item.unit_price.toLocaleString()}</td>
-                                            <td style={{ textAlign: 'right' }}>{item.total.toLocaleString()}</td>
+                                            <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                                            <td className={styles.descriptionCell}>
+                                                <div style={{ fontWeight: 600 }}>{item.description.split(':')[0]}</div>
+                                                <span className={styles.subDescription}>{item.description.split(':').slice(1).join(':') || 'Service execution and delivery'}</span>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>{item.quantity.toFixed(2)}</td>
+                                            <td style={{ textAlign: 'right' }}>{item.unit_price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td style={{ textAlign: 'right' }}>{item.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <div>{(item.total * 0.05).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                                <div style={{ fontSize: '0.7rem', color: '#64748b' }}>5.00%</div>
+                                            </td>
+                                            <td style={{ textAlign: 'right', fontWeight: 600 }}>{(item.total * 1.05).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
 
-                            <div className={styles.totalsArea}>
+                            {/* Financial Block */}
+                            <div className={styles.financialContainer}>
                                 <div className={styles.totalsBox}>
-                                    <div className={styles.totalRow}>
-                                        <span className={styles.totalRowLabel}>Subtotal</span>
-                                        <span className={styles.totalRowValue}>{selectedInvoice.subtotal.toLocaleString()} AED</span>
-                                    </div>
-                                    <div className={styles.totalRow}>
-                                        <span className={styles.totalRowLabel}>VAT (5%)</span>
-                                        <span className={styles.totalRowValue}>{selectedInvoice.vat.toLocaleString()} AED</span>
-                                    </div>
-                                    <div className={`${styles.totalRow} ${styles.grandTotal}`}>
-                                        <span className={styles.totalRowLabel}>Grand Total</span>
-                                        <span className={styles.totalRowValue}>{selectedInvoice.total.toLocaleString()} AED</span>
-                                    </div>
+                                    <table className={styles.totalsTable}>
+                                        <tbody>
+                                            <tr>
+                                                <td className={styles.totalRowLabel}>Sub Total</td>
+                                                <td className={styles.totalRowValue}>{selectedInvoice.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className={styles.totalRowLabel}>Total Taxable Amount</td>
+                                                <td className={styles.totalRowValue}>{selectedInvoice.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className={styles.totalRowLabel}>VAT (5%)</td>
+                                                <td className={styles.totalRowValue}>{selectedInvoice.vat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            </tr>
+                                            <tr className={styles.grandTotalRow}>
+                                                <td className={styles.grandTotalLabel}>Total</td>
+                                                <td className={styles.grandTotalValue}>AED {selectedInvoice.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 
+                            <div className={styles.totalInWords}>
+                                <strong>Total In Words:</strong> AED {selectedInvoice.total.toLocaleString()} only
+                            </div>
+
                             <div className={styles.footer}>
-                                <p>Thank you for your business!</p>
-                                <p>This is a computer-generated document. No signature required.</p>
+                                <div className={styles.termsContainer}>
+                                    <p style={{ fontWeight: 700, marginBottom: '5px' }}>Notes</p>
+                                    <p>Thank you for your business!</p>
+                                    <p style={{ fontWeight: 700, marginTop: '20px', marginBottom: '5px' }}>Terms & Conditions</p>
+                                    <p>Please make payment within the due date to avoid service interruption.</p>
+                                </div>
+
+                                <div className={styles.signatureContainer}>
+                                    <div>
+                                        <div className={styles.signatureLine}></div>
+                                        <div className={styles.signatureText}>Authorized Signature</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', justifyContent: 'center' }}>
-                            <Button icon={Printer} onClick={handlePrint}>Print / Save PDF</Button>
-                            <Button variant="outline" icon={Send}>Email Invoice</Button>
+                        <div className={styles.previewActions}>
+                            <div className={`${styles.actionButton}`} onClick={handlePrint} style={{ background: '#1e293b', color: 'white', border: 'none' }}>
+                                <Printer className={styles.actionIcon} />
+                                <span className={styles.actionLabel}>Print / PDF</span>
+                            </div>
+                            <div className={styles.actionButton}>
+                                <Send className={styles.actionIcon} />
+                                <span className={styles.actionLabel}>Email Client</span>
+                            </div>
+                            <div className={styles.actionButton} onClick={() => setSelectedInvoice(null)}>
+                                <span className={styles.actionLabel}>Close</span>
+                            </div>
                         </div>
                     </div>
                 )}

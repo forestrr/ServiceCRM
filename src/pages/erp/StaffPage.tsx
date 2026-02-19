@@ -4,6 +4,7 @@ import { Button, Modal, Input } from '../../components/UI';
 import { Avatar } from '../../components/Avatar';
 import { Badge } from '../../components/Badge';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './StaffPage.module.css';
 
 interface Staff {
@@ -17,6 +18,7 @@ interface Staff {
 }
 
 export const StaffPage = () => {
+    const { user } = useAuth();
     const [staff, setStaff] = useState<Staff[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,15 +31,19 @@ export const StaffPage = () => {
     });
 
     useEffect(() => {
-        fetchStaff();
-    }, []);
+        if (user) {
+            fetchStaff();
+        }
+    }, [user]);
 
     const fetchStaff = async () => {
+        if (!user) return;
         setLoading(true);
         try {
             const { data, error } = await supabase
                 .from('staff')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -50,12 +56,16 @@ export const StaffPage = () => {
     };
 
     const handleAddStaff = async () => {
-        if (!formData.full_name || !formData.role) return;
+        if (!formData.full_name || !formData.role || !user) return;
         setSaving(true);
         try {
             const { error } = await supabase
                 .from('staff')
-                .insert([{ ...formData, is_active: true }]);
+                .insert([{
+                    ...formData,
+                    user_id: user.id,
+                    is_active: true
+                }]);
 
             if (error) throw error;
             setIsModalOpen(false);

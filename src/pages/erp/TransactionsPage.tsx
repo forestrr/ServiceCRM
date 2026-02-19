@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, History, Loader2, ArrowUpRight, ArrowDownLeft, Filter } from 'lucide-react';
 import { Card, Input } from '../../components/UI';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './TransactionsPage.module.css';
 
 interface Transaction {
@@ -15,15 +16,19 @@ interface Transaction {
 }
 
 export const TransactionsPage = () => {
+    const { user } = useAuth();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        fetchTransactions();
-    }, []);
+        if (user) {
+            fetchTransactions();
+        }
+    }, [user]);
 
     const fetchTransactions = async () => {
+        if (!user) return;
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -32,6 +37,8 @@ export const TransactionsPage = () => {
                     *,
                     accounts (name)
                 `)
+                // Transactions link to accounts, which have user_id
+                .filter('accounts.user_id', 'eq', user.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;

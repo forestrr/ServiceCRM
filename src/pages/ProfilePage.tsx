@@ -14,6 +14,10 @@ export const ProfilePage = () => {
     const [error, setError] = useState<string | null>(null);
     const [fullName, setFullName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [companyAddress, setCompanyAddress] = useState('');
+    const [companyTrn, setCompanyTrn] = useState('');
+    const [bankDetails, setBankDetails] = useState('');
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -31,6 +35,10 @@ export const ProfilePage = () => {
                 if (data) {
                     setFullName(data.full_name || '');
                     setPhoneNumber(data.phone_number || '');
+                    setCompanyName(data.company_name || '');
+                    setCompanyAddress(data.company_address || '');
+                    setCompanyTrn(data.company_trn || '');
+                    setBankDetails(data.bank_details || '');
                 }
             } catch (err: any) {
                 console.error('Error fetching profile:', err);
@@ -58,6 +66,10 @@ export const ProfilePage = () => {
                     id: user.id,
                     full_name: fullName,
                     phone_number: phoneNumber,
+                    company_name: companyName,
+                    company_address: companyAddress,
+                    company_trn: companyTrn,
+                    bank_details: bankDetails,
                     updated_at: new Date().toISOString()
                 });
 
@@ -142,6 +154,64 @@ export const ProfilePage = () => {
                                 value={user?.email || ''}
                                 className={styles.input}
                                 disabled
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.divider} />
+                    <h2 className={styles.sectionTitle}>Business / Agency Info</h2>
+                    <p className={styles.sectionSub}>These details will appear on your professional quotations and invoices.</p>
+
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>Company/Agency Name</label>
+                        <div className={styles.inputWrapper}>
+                            <User className={styles.inputIcon} size={18} />
+                            <input
+                                type="text"
+                                value={companyName}
+                                onChange={(e) => setCompanyName(e.target.value)}
+                                className={styles.input}
+                                placeholder="e.g. Service CRM Solutions"
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>Tax Registration Number (TRN)</label>
+                        <div className={styles.inputWrapper}>
+                            <CheckCircle2 className={styles.inputIcon} size={18} />
+                            <input
+                                type="text"
+                                value={companyTrn}
+                                onChange={(e) => setCompanyTrn(e.target.value)}
+                                className={styles.input}
+                                placeholder="e.g. 100xxxxxxx00003"
+                            />
+                        </div>
+                    </div>
+
+                    <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                        <label className={styles.label}>Physical Address</label>
+                        <div className={styles.inputWrapper}>
+                            <input
+                                type="text"
+                                value={companyAddress}
+                                onChange={(e) => setCompanyAddress(e.target.value)}
+                                className={styles.input}
+                                placeholder="e.g. Prime Tower, Business Bay, Dubai, UAE"
+                            />
+                        </div>
+                    </div>
+
+                    <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                        <label className={styles.label}>Bank Details (Account No, IBAN, Bank Name)</label>
+                        <div className={styles.inputWrapper}>
+                            <textarea
+                                value={bankDetails}
+                                onChange={(e) => setBankDetails(e.target.value)}
+                                className={styles.textarea}
+                                placeholder="Bank: Emirates NBD&#10;Account: 123456789&#10;IBAN: AE00 0000 0000 0000 0000 000"
+                                rows={3}
                             />
                         </div>
                     </div>
