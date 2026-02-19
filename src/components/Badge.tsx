@@ -9,6 +9,7 @@ interface BadgeProps {
     icon?: React.ReactNode;
     pill?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 
 export const Badge = ({
@@ -16,9 +17,10 @@ export const Badge = ({
     variant = 'neutral',
     icon,
     pill = false,
-    className = ''
+    className = '',
+    style = {}
 }: BadgeProps) => (
-    <span className={`${styles.badge} ${styles[variant]} ${pill ? styles.pill : ''} ${className}`}>
+    <span className={`${styles.badge} ${styles[variant]} ${pill ? styles.pill : ''} ${className}`} style={style}>
         {icon && <span className={styles.icon}>{icon}</span>}
         {children}
     </span>

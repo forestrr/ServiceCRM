@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, History, Loader2, ArrowUpRight, ArrowDownLeft, Filter } from 'lucide-react';
+import { Search, Loader2, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { Card, Input } from '../../components/UI';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';

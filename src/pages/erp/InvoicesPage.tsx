@@ -4,7 +4,6 @@ import { Button, Card, Modal, Input } from '../../components/UI';
 import { Badge } from '../../components/Badge';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { exportToPDF } from '../../utils/pdfExport';
 import styles from './InvoicesPage.module.css';
 
 interface InvoiceItem {

@@ -58,7 +58,8 @@ export const Input = ({
     value,
     onChange,
     className = '',
-    style = {}
+    style = {},
+    icon: Icon
 }: {
     label?: string,
     type?: string,
@@ -66,17 +67,21 @@ export const Input = ({
     value?: string,
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
     className?: string,
-    style?: React.CSSProperties
+    style?: React.CSSProperties,
+    icon?: any
 }) => (
     <div className={`${styles.inputWrapper} ${className}`} style={style}>
         {label && <label className={styles.inputLabel}>{label}</label>}
-        <input
-            type={type}
-            placeholder={placeholder}
-            value={value}
-            onChange={onChange}
-            className={styles.input}
-        />
+        <div className={styles.inputContainer}>
+            {Icon && <Icon size={18} className={styles.inputIcon} />}
+            <input
+                type={type}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                className={`${styles.input} ${Icon ? styles.inputWithIcon : ''}`}
+            />
+        </div>
     </div>
 );
 

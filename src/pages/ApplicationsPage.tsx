@@ -309,6 +309,7 @@ export const ApplicationsPage = () => {
 
     const [newAppCustomerId, setNewAppCustomerId] = useState('');
     const [newAppTemplateId, setNewAppTemplateId] = useState('');
+    const [accounts, setAccounts] = useState<any[]>([]);
 
     useEffect(() => {
         if (user) fetchData();
