@@ -1291,6 +1291,22 @@ export const ApplicationsPage = () => {
                         </div>
                     )}
 
+                    <div>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Billing Account</label>
+                        <select
+                            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)' }}
+                            value={completionData.account_id}
+                            onChange={(e) => setCompletionData({ ...completionData, account_id: e.target.value })}
+                        >
+                            <option value="">Select Account...</option>
+                            {accounts.map(acc => (
+                                <option key={acc.id} value={acc.id}>
+                                    {acc.name} (AED {acc.current_balance?.toLocaleString()})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
                         <Button style={{ flex: 1 }} onClick={confirmStepCompletion} disabled={saving || !completionData.staff_id}>
                             Confirm Completion
