@@ -25,3 +25,4 @@ dist-ssr
 .env
 check_data.js
 check_query.js
+check_docs.js
