@@ -17,12 +17,19 @@ import { StaffPage } from './pages/erp/StaffPage';
 import { ReportsPage } from './pages/erp/ReportsPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { Loader2 } from 'lucide-react';
 
 // Safe wrapper for protected routes
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return null; // Or a loading spinner
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <Loader2 className="animate-spin" size={32} color="var(--primary)" />
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;

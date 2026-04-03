@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
     user: User | null;
@@ -35,15 +36,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     useEffect(() => {
-        // Check active sessions and sets the user
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
+        // Fallback timeout to ensure 'loading' is eventually set to false
+        const timer = setTimeout(() => {
+            if (loading) {
+                console.warn('Auth session check timed out');
+                setLoading(false);
             }
-            setLoading(false);
-        });
+        }, 5000); // 5 second timeout
+
+        // Check active sessions and sets the user
+        supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+                setSession(session);
+                setUser(session?.user ?? null);
+                if (session?.user) {
+                    fetchProfile(session.user.id);
+                }
+            })
+            .catch((err) => {
+                console.error('Error getting auth session:', err);
+                setUser(null);
+                setSession(null);
+            })
+            .finally(() => {
+                setLoading(false);
+                clearTimeout(timer);
+            });
 
         // Listen for changes on auth state (logged in, signed out, etc.)
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -95,7 +113,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {loading ? (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100vh',
+                    width: '100vw',
+                    backgroundColor: 'var(--bg-main)',
+                    color: 'var(--primary)',
+                    gap: '16px'
+                }}>
+                    <Loader2 className="animate-spin" size={40} />
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                        Initializing Trust Flow...
+                    </p>
+                </div>
+            ) : children}
         </AuthContext.Provider>
     );
 };
